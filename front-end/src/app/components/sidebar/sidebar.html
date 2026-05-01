@@ -1,0 +1,510 @@
+<div class="sidebar">
+  <div class="logo">
+    <img src="/assets/logonexusapp.png" alt="Nexus Logo">
+  </div>
+
+  <nav>
+    <ul>
+      <li routerLink="/dashboard" routerLinkActive="active">
+        <lucide-icon
+          [img]="iconDashboard"
+          [size]="20"
+          color="currentColor"
+          class="nav-icon"
+          aria-hidden="true"
+        />
+        <span>Dashboard</span>
+      </li>
+
+      @if (isAdmin) {
+        <li routerLink="/admin/usuarios" routerLinkActive="active">
+          <lucide-icon
+            [img]="iconAdmin"
+            [size]="20"
+            color="currentColor"
+            class="nav-icon"
+            aria-hidden="true"
+          />
+          <span>Usuários</span>
+        </li>
+      }
+
+      <li
+        class="nav-item nav-item--folders"
+        [class.nav-item--open]="isFoldersMenuOpen"
+      >
+        <button
+          type="button"
+          class="nav-link nav-link--button"
+          (click)="toggleFoldersMenu()"
+          [attr.aria-expanded]="isFoldersMenuOpen"
+          aria-controls="folders-submenu"
+        >
+          <lucide-icon
+            [img]="iconFolders"
+            [size]="20"
+            color="currentColor"
+            class="nav-icon"
+            aria-hidden="true"
+          />
+          <span>Produtos</span>
+          <span class="submenu-caret" aria-hidden="true">›</span>
+        </button>
+
+        <div class="folders-submenu" id="folders-submenu">
+          <div class="folder-actions" aria-label="Acoes do submenu de pastas">
+            <button
+              type="button"
+              class="folder-actions__button"
+              (click)="addFolderOption()"
+              aria-label="Adicionar tipo de pasta"
+              title="Adicionar"
+            >
+              <lucide-icon [img]="iconAdd" [size]="15" color="currentColor" aria-hidden="true" />
+            </button>
+            <button
+              type="button"
+              class="folder-actions__button"
+              (click)="editFolderOption()"
+              aria-label="Editar tipo de pasta selecionado"
+              title="Editar"
+            >
+              <lucide-icon [img]="iconEdit" [size]="15" color="currentColor" aria-hidden="true" />
+            </button>
+            <button
+              type="button"
+              class="folder-actions__button"
+              (click)="removeFolderOption()"
+              aria-label="Remover tipo de pasta selecionado"
+              title="Remover"
+            >
+              <lucide-icon [img]="iconRemove" [size]="15" color="currentColor" aria-hidden="true" />
+            </button>
+          </div>
+
+          @if (folderActionError) {
+            <p class="folders-submenu__feedback">{{ folderActionError }}</p>
+          }
+
+          <ul class="folders-submenu__list">
+            @if (isLoadingFolders) {
+              <li class="folders-submenu__empty">Carregando pastas...</li>
+            } @else if (!folders.length) {
+              <li class="folders-submenu__empty">Nenhuma pasta cadastrada ainda.</li>
+            } @else {
+            @for (folder of folders; track folder.id; let index = $index) {
+              <li class="folders-submenu__row">
+                <button
+                  type="button"
+                  class="folders-submenu__item"
+                  [class.folders-submenu__item--selected]="selectedFolderIndex === index"
+                  (click)="selectFolder(index)"
+                >
+                  {{ folder.name }}
+                </button>
+
+                <div class="folders-submenu__item-actions" aria-label="Acoes da pasta">
+                  <button
+                    type="button"
+                    class="folders-submenu__item-action"
+                    (click)="openCreateProductModal(index)"
+                    aria-label="Adicionar produto nesta pasta"
+                    title="Adicionar produto"
+                  >
+                    <lucide-icon [img]="iconAdd" [size]="14" color="currentColor" aria-hidden="true" />
+                  </button>
+
+                  <button
+                    type="button"
+                    class="folders-submenu__item-action"
+                    (click)="openManageProductsModal(index)"
+                    aria-label="Editar produtos desta pasta"
+                    title="Editar produtos"
+                  >
+                    <lucide-icon [img]="iconEdit" [size]="14" color="currentColor" aria-hidden="true" />
+                  </button>
+                </div>
+              </li>
+            }
+            }
+          </ul>
+        </div>
+      </li>
+    </ul>
+  </nav>
+
+  <section class="chatbot-control" aria-label="Status do ChatBot">
+    <div class="chatbot-control__copy">
+      <span class="chatbot-control__label">Agente IA</span>
+      <strong>{{ chatBotStatusLabel }}</strong>
+    </div>
+
+    <button
+      type="button"
+      class="chatbot-toggle"
+      [class.chatbot-toggle--active]="isChatBotActive"
+      [disabled]="isTogglingChatBot"
+      (click)="toggleChatBotStatus()"
+      [attr.aria-pressed]="isChatBotActive"
+      [attr.aria-label]="isChatBotActive ? 'Desligar ChatBot' : 'Ligar ChatBot'"
+      [title]="isChatBotActive ? 'Desligar ChatBot' : 'Ligar ChatBot'"
+    >
+      <lucide-icon
+        [img]="iconPower"
+        [size]="18"
+        color="currentColor"
+        aria-hidden="true"
+      />
+    </button>
+
+    @if (chatBotError) {
+      <p class="chatbot-control__error">{{ chatBotError }}</p>
+    }
+  </section>
+
+  <section class="chatbot-control" aria-label="Sessao do usuario">
+    <div class="chatbot-control__copy">
+      <span class="chatbot-control__label">Sessão</span>
+      <strong>{{ currentUserName }}</strong>
+    </div>
+
+    <button
+      type="button"
+      class="chatbot-toggle"
+      (click)="logout()"
+      aria-label="Encerrar sessao"
+      title="Sair"
+    >
+      <lucide-icon
+        [img]="iconLogout"
+        [size]="18"
+        color="currentColor"
+        aria-hidden="true"
+      />
+    </button>
+  </section>
+
+  <div class="sidebar-integrations" aria-label="Atalhos de integracoes">
+    <a
+      class="sidebar-integrations__link"
+      href="https://trello.com/"
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-label="Abrir Trello em nova guia"
+      title="Abrir Trello"
+    >
+      <img
+        src="/assets/logotrello.png"
+        alt="Trello"
+        class="sidebar-integrations__logo"
+      />
+      <span class="sidebar-integrations__label">Trello</span>
+    </a>
+    
+    <a
+      class="sidebar-integrations__link"
+      href="https://teams.microsoft.com/"
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-label="Abrir Microsoft Teams em nova guia"
+      title="Abrir Microsoft Teams"
+    >
+      <img
+        src="/assets/logoteams.png"
+        alt="Microsoft Teams"
+        class="sidebar-integrations__logo"
+      />
+      <span class="sidebar-integrations__label">Teams</span>
+    </a>
+
+    <a
+      class="sidebar-integrations__link"
+      href="https://ongivb.com/"
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-label="Abrir IVB Academia em nova guia"
+      title="Abrir IVB Academia"
+    >
+      <img
+        src="/assets/logoivbacademia.png"
+        alt="IVB Academia"
+        class="sidebar-integrations__logo"
+      />
+      <span class="sidebar-integrations__label">IVB Academia</span>
+    </a>
+
+    <button
+      type="button"
+      class="sidebar-integrations__link"
+      (click)="openElevenLabsModal()"
+      aria-label="Abrir agente MarkIA"
+      title="Abrir MarkIA"
+    >
+      <img
+        src="/assets/logomarkIA.png"
+        alt="MarkIA"
+        class="sidebar-integrations__logo"
+      />
+      <span class="sidebar-integrations__label">Mark IA</span>
+    </button>
+  </div>
+
+  <div class="footer-logos">
+    <p class="footer-logos__text">
+      Sistema desenvolvido por IVB EdTech
+    </p>
+    <img
+      src="/assets/logo-ivbedtech.png"
+      alt="IVB Edtech"
+      class="footer-logos__img"
+    />
+  </div>
+</div>
+
+@if (isElevenLabsModalOpen) {
+  <div class="elevenlabs-drawer-backdrop" (click)="closeElevenLabsModal()">
+    <section
+      class="elevenlabs-drawer"
+      (click)="$event.stopPropagation()"
+      aria-label="Assistente MarkIA"
+    >
+      <header class="mockup-modal__header elevenlabs-drawer__header">
+        <div>
+          <span class="mockup-modal__eyebrow">Assistente</span>
+          <h3>MarkIA</h3>
+        </div>
+
+        <button
+          type="button"
+          class="mockup-modal__close"
+          (click)="closeElevenLabsModal()"
+          aria-label="Fechar assistente"
+        >
+          <lucide-icon [img]="iconClose" [size]="16" color="currentColor" aria-hidden="true" />
+        </button>
+      </header>
+
+      <div class="elevenlabs-drawer__body">
+        <elevenlabs-convai [attr.agent-id]="elevenLabsAgentId"></elevenlabs-convai>
+      </div>
+    </section>
+  </div>
+}
+
+@if (isMockupModalOpen) {
+  <div class="mockup-modal-backdrop" (click)="closeMockupModal()">
+    <section class="mockup-modal" (click)="$event.stopPropagation()">
+      <header class="mockup-modal__header">
+        <div>
+          <span class="mockup-modal__eyebrow">
+            {{ isManageMode ? 'Produtos da pasta' : 'Cadastro de produtos' }}
+          </span>
+          <h3>{{ activeFolderName }}</h3>
+        </div>
+
+        <button
+          type="button"
+          class="mockup-modal__close"
+          (click)="closeMockupModal()"
+          aria-label="Fechar modal"
+        >
+          <lucide-icon [img]="iconClose" [size]="16" color="currentColor" aria-hidden="true" />
+        </button>
+      </header>
+
+      @if (!isManageMode) {
+        <label class="mockup-upload">
+          <input
+            type="file"
+            accept="image/*"
+            multiple
+            (change)="onMockupFilesSelected($event)"
+          />
+
+          <div class="mockup-upload__icon">
+            <lucide-icon [img]="iconUpload" [size]="18" color="currentColor" aria-hidden="true" />
+          </div>
+          <strong>Adicionar produtos</strong>
+          <p>Selecione uma ou mais imagens e complete os dados de cada produto antes de salvar.</p>
+        </label>
+      } @else {
+        <p class="mockup-modal__intro">
+          Revise os produtos cadastrados nesta pasta, ajuste os campos necessarios e salve as alteracoes quando terminar.
+        </p>
+      }
+
+      @if (mockupModalError) {
+        <p class="mockup-modal__feedback mockup-modal__feedback--error">
+          {{ mockupModalError }}
+        </p>
+      }
+
+      @if (mockupModalSuccess) {
+        <p class="mockup-modal__feedback mockup-modal__feedback--success">
+          {{ mockupModalSuccess }}
+        </p>
+      }
+
+      @if (!isManageMode) {
+        <div class="mockup-modal__list">
+          @for (pendingProduct of pendingProducts; track pendingProduct.previewUrl; let index = $index) {
+            <article class="mockup-card">
+              <img [src]="pendingProduct.previewUrl" alt="Preview do produto" />
+              <div class="mockup-card__body">
+                <div class="mockup-card__copy">
+                  <strong>{{ pendingProduct.file.name }}</strong>
+                  <span>{{ pendingProduct.file.size / 1024 | number: '1.0-0' }} KB</span>
+                </div>
+
+                <div class="product-form-grid">
+                  <label class="product-form-field">
+                    <span>Nome do produto</span>
+                    <input
+                      type="text"
+                      [(ngModel)]="pendingProduct.name"
+                      maxlength="80"
+                      placeholder="Ex.: Caixa premium"
+                    />
+                  </label>
+
+                  <label class="product-form-field">
+                    <span>SKU</span>
+                    <input
+                      type="text"
+                      [(ngModel)]="pendingProduct.sku"
+                      maxlength="80"
+                      placeholder="Ex.: CX-001"
+                    />
+                  </label>
+
+                  <label class="product-form-field product-form-field--full">
+                    <span>Descricao</span>
+                    <textarea
+                      rows="3"
+                      [(ngModel)]="pendingProduct.description"
+                      placeholder="Descreva material, acabamento, finalidade ou observacoes."
+                    ></textarea>
+                  </label>
+
+                  <label class="product-form-field">
+                    <span>Estoque</span>
+                    <input
+                      type="number"
+                      min="0"
+                      [(ngModel)]="pendingProduct.stockQuantity"
+                    />
+                  </label>
+
+                  <label class="product-form-toggle">
+                    <input type="checkbox" [(ngModel)]="pendingProduct.available" />
+                    <span>Produto disponivel</span>
+                  </label>
+                </div>
+              </div>
+              <button
+                type="button"
+                class="mockup-card__remove"
+                (click)="removePendingProduct(index)"
+              >
+                Remover
+              </button>
+            </article>
+          }
+        </div>
+      } @else if (isLoadingManagedProducts) {
+        <p class="mockup-modal__empty">Carregando produtos cadastrados...</p>
+      } @else if (!managedProducts.length) {
+        <p class="mockup-modal__empty">Nenhum produto cadastrado nesta pasta ainda.</p>
+      } @else {
+        <div class="mockup-modal__list">
+          @for (managedProduct of managedProducts; track managedProduct.id) {
+            <article class="mockup-card">
+              <img [src]="managedProduct.image" alt="Preview do produto" />
+              <div class="mockup-card__body">
+                <div class="mockup-card__copy">
+                  <strong>{{ managedProduct.name }}</strong>
+                  <span>Produto cadastrado na pasta selecionada</span>
+                </div>
+
+                <div class="product-form-grid">
+                  <label class="product-form-field">
+                    <span>Nome do produto</span>
+                    <input
+                      type="text"
+                      [(ngModel)]="managedProduct.name"
+                      maxlength="80"
+                      placeholder="Ex.: Caixa premium"
+                    />
+                  </label>
+
+                  <label class="product-form-field">
+                    <span>SKU</span>
+                    <input
+                      type="text"
+                      [(ngModel)]="managedProduct.sku"
+                      maxlength="80"
+                      placeholder="Ex.: CX-001"
+                    />
+                  </label>
+
+                  <label class="product-form-field product-form-field--full">
+                    <span>Descricao</span>
+                    <textarea
+                      rows="3"
+                      [(ngModel)]="managedProduct.description"
+                      placeholder="Descreva material, acabamento, finalidade ou observacoes."
+                    ></textarea>
+                  </label>
+
+                  <label class="product-form-field">
+                    <span>Estoque</span>
+                    <input
+                      type="number"
+                      min="0"
+                      [(ngModel)]="managedProduct.stockQuantity"
+                    />
+                  </label>
+
+                  <label class="product-form-toggle">
+                    <input type="checkbox" [(ngModel)]="managedProduct.available" />
+                    <span>Produto disponivel</span>
+                  </label>
+                </div>
+              </div>
+              <button
+                type="button"
+                class="mockup-card__remove"
+                (click)="removeManagedProduct(managedProduct.id)"
+                [disabled]="managedProduct.isDeleting"
+              >
+                {{ managedProduct.isDeleting ? 'Removendo...' : 'Remover' }}
+              </button>
+            </article>
+          }
+        </div>
+      }
+
+      <footer class="mockup-modal__actions">
+        <button type="button" class="mockup-modal__secondary" (click)="closeMockupModal()">
+          Fechar
+        </button>
+        <button
+          type="button"
+          class="mockup-modal__primary"
+          (click)="isManageMode ? saveManagedProducts() : saveProducts()"
+          [disabled]="
+            isManageMode
+              ? isLoadingManagedProducts || isSavingManagedProducts || !managedProducts.length
+              : isSavingProducts
+          "
+        >
+          {{
+            isManageMode
+              ? (isSavingManagedProducts ? 'Salvando...' : 'Salvar alteracoes')
+              : (isSavingProducts ? 'Salvando...' : 'Salvar produtos')
+          }}
+        </button>
+      </footer>
+    </section>
+  </div>
+}

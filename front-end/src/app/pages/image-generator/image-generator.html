@@ -1,0 +1,374 @@
+<section class="image-generator-page">
+  <div class="page-top-actions">
+    <a
+      class="page-top-actions__floating-link"
+      href="https://wa.me/5561995082740"
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-label="Abrir conversa da Abelha IVB no WhatsApp"
+      title="Abrir Abelha IVB no WhatsApp"
+    >
+      <span class="page-top-actions__support-bubble">
+        Fale com o suporte no WhatsApp 24/7
+      </span>
+      <img src="/assets/logoabelhaivb.png" alt="Abelha IVB" />
+    </a>
+  </div>
+
+  <header class="hero">
+    <div class="hero__content hero__content--with-aside">
+      <span class="hero__eyebrow">Studio de Criação Visual</span>
+      <h1>Dashboard: Criação & Controle</h1>
+      <p>
+        Envie uma imagem de referência, descreva o que deseja gerar e organize
+        seu fluxo em uma interface mais limpa e objetiva.
+      </p>
+      <a
+        class="hero__whatsapp-card"
+        href="https://web.whatsapp.com/"
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label="Abrir WhatsApp Web em nova guia"
+        title="Abrir WhatsApp Web"
+      >
+        <img src="/assets/logowpp.png" alt="WhatsApp" />
+        <span>CHAT & RELATÓRIOS</span>
+      </a>
+    </div>
+  </header>
+
+  <section class="workspace-card">
+    <div class="workspace-card__header">
+      <div>
+        <span class="section-tag">Etapa 1</span>
+        <h2>Referência visual</h2>
+      </div>
+
+      <span class="section-helper">
+        PNG, JPG ou WEBP • {{ selectedFiles.length }}/{{ maxImages }} imagens
+      </span>
+    </div>
+
+    <div
+      class="upload-zone"
+      [class.upload-zone--dragging]="isDragActive"
+      [class.upload-zone--has-preview]="previewUrls.length > 0"
+      (dragover)="onDragOver($event)"
+      (dragleave)="onDragLeave($event)"
+      (drop)="onDrop($event)"
+      (click)="openImageSourceModal()"
+    >
+      <input
+        #referenceUploadInput
+        id="reference-upload"
+        class="upload-zone__input"
+        type="file"
+        accept="image/*"
+        multiple
+        (change)="onFileSelected($event)"
+      />
+
+      <ng-container *ngIf="previewUrls.length > 0; else emptyUpload">
+        <div class="upload-zone__preview-grid">
+          <article
+            class="upload-zone__preview-card"
+            *ngFor="let previewUrl of previewUrls; let index = index"
+          >
+            <img
+              [src]="previewUrl"
+              alt="Pre-visualizacao da imagem de referencia"
+              class="upload-zone__preview-image"
+            />
+            <div class="upload-zone__preview-copy">
+              <strong>{{ selectedFiles[index]?.name }}</strong>
+              <p>Referência {{ index + 1 }} pronta para a geração.</p>
+            </div>
+            <button
+              class="button button--ghost upload-zone__remove"
+              type="button"
+              (click)="removeReferenceAt(index, $event)"
+            >
+              Remover
+            </button>
+          </article>
+
+          <div class="upload-zone__add-more" *ngIf="selectedFiles.length < maxImages">
+            <div class="upload-zone__add-more-icon">
+              <img src="/assets/logoivbpasta.png" alt="Logo da pasta" />
+            </div>
+            <strong>Adicionar mais imagens</strong>
+            <p>
+              Busque do computador ou use referências já salvas nas pastas do sistema.
+            </p>
+          </div>
+        </div>
+      </ng-container>
+
+      <ng-template #emptyUpload>
+        <div class="upload-zone__icon" aria-hidden="true">
+          <img src="/assets/logoivbpasta.png" alt="" />
+        </div>
+
+        <strong>Arraste sua imagem aqui ou clique para adicionar</strong>
+        <p>
+          Escolha entre imagens do computador ou referências já armazenadas nas
+          pastas do sistema.
+        </p>
+      </ng-template>
+    </div>
+  </section>
+
+  <section class="editor-grid">
+    <article class="workspace-card workspace-card--prompt">
+      <div class="workspace-card__header">
+        <div>
+          <span class="section-tag">Etapa 2</span>
+          <h2>Prompt de criação</h2>
+        </div>
+
+        <span class="section-helper">Descreva estilo, cores e objetivo</span>
+      </div>
+
+      <textarea
+        class="prompt-field"
+        rows="8"
+        [ngModel]="prompt"
+        (ngModelChange)="onPromptChange($event)"
+        placeholder="Exemplo: gerar uma arte promocional premium, com fundo claro, tipografia forte, elementos modernos e destaque para a oferta principal."
+      ></textarea>
+
+      <div class="feedback-stack">
+        <p class="feedback feedback--error" *ngIf="errorMessage">
+          {{ errorMessage }}
+        </p>
+        <p class="feedback feedback--success" *ngIf="successMessage">
+          {{ successMessage }}
+        </p>
+        <p class="feedback feedback--debug" *ngIf="debugMessage">
+          {{ debugMessage }}
+        </p>
+      </div>
+
+      <div class="prompt-actions">
+        <button
+          class="button button--primary"
+          type="button"
+          (click)="generateImage()"
+          [disabled]="isSubmitting"
+        >
+          {{ isSubmitting ? 'Gerando...' : 'Gerar imagem' }}
+        </button>
+        <button
+          class="button button--secret"
+          type="button"
+          (click)="improvePrompt()"
+          [disabled]="isImprovingPrompt || isSubmitting"
+        >
+          {{ isImprovingPrompt ? 'Aperfeicoando...' : 'Aperfeicoar' }}
+        </button>
+        <button class="button button--ghost" type="button" (click)="clearPrompt()">
+          Limpar
+        </button>
+      </div>
+    </article>
+
+    <aside class="workspace-sidebar">
+      <article class="insight-card insight-card--result">
+        <span class="section-tag">Resultado</span>
+        <h3>Imagem gerada</h3>
+
+        <div class="result-panel" *ngIf="generatedImageUrl; else waitingResult">
+          <img
+            [src]="generatedImageUrl"
+            alt="Imagem gerada pela inteligencia artificial"
+            class="result-panel__image"
+            (error)="errorMessage = 'A resposta chegou, mas a imagem nao conseguiu ser renderizada no navegador.'"
+          />
+          <div class="result-panel__actions">
+            <button
+              class="button button--primary result-panel__download"
+              type="button"
+              (click)="downloadGeneratedImage()"
+            >
+              Baixar imagem
+            </button>
+          </div>
+        </div>
+
+        <ng-template #waitingResult>
+          <div class="result-panel result-panel--empty">
+            <p>Sua imagem final aparecera aqui assim que a geracao for concluida.</p>
+          </div>
+        </ng-template>
+      </article>
+
+      <article class="insight-card">
+        <span class="section-tag">Boas praticas</span>
+        <h3>Como obter resultados melhores</h3>
+        <ul>
+          <li>Defina o formato da arte que voce deseja gerar.</li>
+          <li>Informe paleta, estilo visual e publico-alvo.</li>
+          <li>Explique o que deve aparecer com destaque principal.</li>
+        </ul>
+      </article>
+
+      <article class="insight-card insight-card--accent">
+        <span class="section-tag">Sugestao</span>
+        <h3>Estrutura rapida de prompt</h3>
+        <p>
+          Objetivo + estilo + elementos visuais + cores + proporcao final.
+        </p>
+      </article>
+    </aside>
+  </section>
+</section>
+
+<div
+  class="source-modal-backdrop"
+  *ngIf="isImageSourceModalOpen"
+  (click)="closeImageSourceModal()"
+>
+  <div class="source-modal" (click)="$event.stopPropagation()">
+    <button class="source-modal__close" type="button" (click)="closeImageSourceModal()">
+      ×
+    </button>
+
+    <ng-container *ngIf="!isSystemLibraryOpen; else systemLibrary">
+      <span class="section-tag">Adicionar referencia</span>
+      <h3>De onde voce quer buscar as imagens?</h3>
+      <p class="source-modal__intro">
+        Escolha a origem das referências que vão entrar na geração.
+      </p>
+
+      <div class="source-choice-grid">
+        <button class="source-choice-card" type="button" (click)="chooseComputerImages()">
+          <div class="source-choice-card__icon">+</div>
+          <strong>Buscar no computador</strong>
+          <p>Selecione imagens locais do seu dispositivo.</p>
+        </button>
+
+        <button class="source-choice-card" type="button" (click)="chooseSystemImages()">
+          <div class="source-choice-card__icon source-choice-card__icon--system">★</div>
+          <strong>Usar imagens do sistema</strong>
+          <p>Escolha produtos ja cadastrados nas pastas internas.</p>
+        </button>
+      </div>
+    </ng-container>
+
+    <ng-template #systemLibrary>
+      <div class="source-modal__header">
+        <div>
+          <span class="section-tag">Biblioteca interna</span>
+          <h3>Escolha imagens já salvas nas pastas</h3>
+        </div>
+      </div>
+
+      <p class="source-modal__intro">
+        Selecione uma pasta, marque as imagens desejadas e adicione tudo de uma vez.
+      </p>
+
+      <p class="feedback feedback--error" *ngIf="systemSourceError">
+        {{ systemSourceError }}
+      </p>
+
+      <div class="system-library">
+        <aside class="system-library__folders">
+          <button
+            class="system-library__folder"
+            type="button"
+            *ngFor="let folder of availableFolders"
+            [class.system-library__folder--active]="folder.id === selectedSystemFolderId"
+            (click)="selectSystemFolder(folder.id)"
+          >
+            {{ folder.name }}
+          </button>
+
+          <p class="system-library__empty" *ngIf="!isLoadingFolders && !availableFolders.length">
+            Nenhuma pasta encontrada.
+          </p>
+        </aside>
+
+        <div class="system-library__content">
+          <div class="system-library__state" *ngIf="isLoadingFolders || isLoadingSystemImages">
+            Carregando imagens do sistema...
+          </div>
+
+          <div
+            class="system-library__grid"
+            *ngIf="!isLoadingFolders && !isLoadingSystemImages && availableSystemProducts.length"
+          >
+            <article
+              class="system-library__card"
+              *ngFor="let product of availableSystemProducts"
+              [class.system-library__card--selected]="isSystemProductSelected(product.id)"
+              (click)="toggleSystemProductSelection(product.id)"
+            >
+              <button
+                class="system-library__menu-trigger"
+                type="button"
+                (click)="toggleProductMenu(product.id, $event)"
+                [attr.aria-expanded]="isProductMenuOpen(product.id)"
+                aria-label="Abrir acoes da imagem"
+              >
+                ⋮
+              </button>
+
+              <div
+                class="system-library__menu"
+                *ngIf="isProductMenuOpen(product.id)"
+                (click)="$event.stopPropagation()"
+              >
+                <button type="button" (click)="moveSystemProduct(product, $event)">
+                  Mover de pasta
+                </button>
+                <button
+                  type="button"
+                  class="system-library__menu-danger"
+                  (click)="deleteSystemProduct(product, $event)"
+                >
+                  Excluir imagem
+                </button>
+              </div>
+
+              <img
+                [src]="product.image"
+                [alt]="'Produto salvo em ' + product.folderName"
+                class="system-library__image"
+              />
+              <div class="system-library__copy">
+                <strong>{{ product.name || product.type }}</strong>
+                <p>{{ product.folderName }}</p>
+                <span *ngIf="product.sku">SKU: {{ product.sku }}</span>
+              </div>
+            </article>
+          </div>
+
+          <div
+            class="system-library__state"
+            *ngIf="!isLoadingFolders && !isLoadingSystemImages && !availableSystemProducts.length"
+          >
+            Escolha uma pasta com imagens salvas para montar suas referências.
+          </div>
+        </div>
+      </div>
+
+      <div class="source-modal__actions">
+        <button class="button button--ghost" type="button" (click)="closeImageSourceModal()">
+          Cancelar
+        </button>
+        <button
+          class="button button--primary source-modal__submit"
+          type="button"
+          (click)="addSelectedSystemImages()"
+          [disabled]="!selectedSystemProductIds.length"
+        >
+          {{
+            selectedSystemProductIds.length
+              ? 'Adicionar ' + selectedSystemProductIds.length + ' selecionado' + (selectedSystemProductIds.length > 1 ? 's' : '')
+              : 'Selecione produtos'
+          }}
+        </button>
+      </div>
+    </ng-template>
+  </div>
+</div>

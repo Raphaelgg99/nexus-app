@@ -1,0 +1,225 @@
+[INFO] Scanning for projects...
+[INFO] 
+[INFO] -------------------< com.bananaproservice:back-end >--------------------
+[INFO] Building  0.0.1-SNAPSHOT
+[INFO]   from pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] >>> spring-boot:3.5.13:run (default-cli) > test-compile @ back-end >>>
+[INFO] 
+[INFO] --- resources:3.3.1:resources (default-resources) @ back-end ---
+[INFO] Copying 1 resource from src\main\resources to target\classes
+[INFO] Copying 0 resource from src\main\resources to target\classes
+[INFO] 
+[INFO] --- compiler:3.14.1:compile (default-compile) @ back-end ---
+[INFO] Nothing to compile - all classes are up to date.
+[INFO] 
+[INFO] --- resources:3.3.1:testResources (default-testResources) @ back-end ---
+[INFO] skip non existing resourceDirectory C:\Users\Rafael\Downloads\ramark\back-end\bananaproservice\src\test\resources
+[INFO] 
+[INFO] --- compiler:3.14.1:testCompile (default-testCompile) @ back-end ---
+[INFO] Nothing to compile - all classes are up to date.
+[INFO] 
+[INFO] <<< spring-boot:3.5.13:run (default-cli) < test-compile @ back-end <<<
+[INFO] 
+[INFO] 
+[INFO] --- spring-boot:3.5.13:run (default-cli) @ back-end ---
+[INFO] Attaching agents: []
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::               (v3.5.13)
+
+2026-04-18T21:43:39.312-03:00  INFO 10088 --- [bananaproservice] [           main] c.b.back_end.BananaProApplication        : Starting BananaProApplication using Java 17.0.16 with PID 10088 (C:\Users\Rafael\Downloads\ramark\back-end\bananaproservice\target\classes started by Rafael in C:\Users\Rafael\Downloads\ramark\back-end\bananaproservice)
+2026-04-18T21:43:39.312-03:00  INFO 10088 --- [bananaproservice] [           main] c.b.back_end.BananaProApplication        : No active profile set, falling back to 1 default profile: "default"
+2026-04-18T21:43:41.821-03:00  INFO 10088 --- [bananaproservice] [           main] o.s.b.web.embedded.netty.NettyWebServer  : Netty started on port 8080 (http)
+2026-04-18T21:43:41.864-03:00  INFO 10088 --- [bananaproservice] [           main] c.b.back_end.BananaProApplication        : Started BananaProApplication in 3.14 seconds (process running for 3.602)
+2026-04-18T21:43:41.867-03:00  WARN 10088 --- [bananaproservice] [           main] o.s.core.events.SpringDocAppInitializer  : SpringDoc /v3/api-docs endpoint is enabled by default. To disable it in production, set the property 'springdoc.api-docs.enabled=false'
+2026-04-18T21:44:29.062-03:00 ERROR 10088 --- [bananaproservice] [ctor-http-nio-4] a.w.r.e.AbstractErrorWebExceptionHandler : [e90e20a9-2]  500 Server Error for HTTP POST "/api/prototype/generate"
+
+org.springframework.web.reactive.function.client.WebClientResponseException: 200 OK from POST https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image:generateContent, but response failed with cause: org.springframework.core.io.buffer.DataBufferLimitException: Exceeded limit on max bytes to buffer : 262144
+	at org.springframework.web.reactive.function.client.WebClientResponseException.create(WebClientResponseException.java:337) ~[spring-webflux-6.2.17.jar:6.2.17]
+	Suppressed: The stacktrace has been enhanced by Reactor, refer to additional information below: 
+Error has been observed at the following site(s):
+	*__checkpoint ? Handler com.bananaproservice.back_end.controller.PrototypeController#generate(List, String) [DispatcherHandler]
+	*__checkpoint ? HTTP POST "/api/prototype/generate" [ExceptionHandlingWebHandler]
+Original Stack Trace:
+		at org.springframework.web.reactive.function.client.WebClientResponseException.create(WebClientResponseException.java:337) ~[spring-webflux-6.2.17.jar:6.2.17]
+		at org.springframework.web.reactive.function.client.DefaultClientResponse.lambda$createException$1(DefaultClientResponse.java:214) ~[spring-webflux-6.2.17.jar:6.2.17]
+		at reactor.core.publisher.FluxMap$MapSubscriber.onNext(FluxMap.java:106) ~[reactor-core-3.7.17.jar:3.7.17]
+		at reactor.core.publisher.FluxOnErrorReturn$ReturnSubscriber.onError(FluxOnErrorReturn.java:199) ~[reactor-core-3.7.17.jar:3.7.17]
+		at reactor.core.publisher.FluxDefaultIfEmpty$DefaultIfEmptySubscriber.onError(FluxDefaultIfEmpty.java:156) ~[reactor-core-3.7.17.jar:3.7.17]
+		at reactor.core.publisher.FluxMapFuseable$MapFuseableSubscriber.onError(FluxMapFuseable.java:142) ~[reactor-core-3.7.17.jar:3.7.17]
+		at reactor.core.publisher.FluxContextWrite$ContextWriteSubscriber.onError(FluxContextWrite.java:121) ~[reactor-core-3.7.17.jar:3.7.17]
+		at reactor.core.publisher.FluxMapFuseable$MapFuseableConditionalSubscriber.onError(FluxMapFuseable.java:340) ~[reactor-core-3.7.17.jar:3.7.17]
+		at reactor.core.publisher.FluxFilterFuseable$FilterFuseableConditionalSubscriber.onError(FluxFilterFuseable.java:382) ~[reactor-core-3.7.17.jar:3.7.17]
+		at reactor.core.publisher.MonoCollect$CollectSubscriber.onError(MonoCollect.java:135) ~[reactor-core-3.7.17.jar:3.7.17]
+		at reactor.core.publisher.FluxMap$MapSubscriber.onError(FluxMap.java:134) ~[reactor-core-3.7.17.jar:3.7.17]
+		at reactor.core.publisher.FluxPeek$PeekSubscriber.onError(FluxPeek.java:222) ~[reactor-core-3.7.17.jar:3.7.17]
+		at reactor.core.publisher.FluxMap$MapSubscriber.onError(FluxMap.java:134) ~[reactor-core-3.7.17.jar:3.7.17]
+		at reactor.core.publisher.Operators.error(Operators.java:198) ~[reactor-core-3.7.17.jar:3.7.17]
+		at reactor.netty.channel.FluxReceive.startReceiver(FluxReceive.java:189) ~[reactor-netty-core-1.2.16.jar:1.2.16]
+		at reactor.netty.channel.FluxReceive.subscribe(FluxReceive.java:145) ~[reactor-netty-core-1.2.16.jar:1.2.16]
+		at reactor.core.publisher.InternalFluxOperator.subscribe(InternalFluxOperator.java:68) ~[reactor-core-3.7.17.jar:3.7.17]
+		at reactor.netty.ByteBufFlux.subscribe(ByteBufFlux.java:340) ~[reactor-netty-core-1.2.16.jar:1.2.16]
+		at reactor.core.publisher.Mono.subscribe(Mono.java:4576) ~[reactor-core-3.7.17.jar:3.7.17]
+		at reactor.core.publisher.FluxOnErrorResume$ResumeSubscriber.onError(FluxOnErrorResume.java:103) ~[reactor-core-3.7.17.jar:3.7.17]
+		at reactor.core.publisher.MonoFlatMap$FlatMapMain.onError(MonoFlatMap.java:180) ~[reactor-core-3.7.17.jar:3.7.17]
+		at reactor.core.publisher.FluxContextWrite$ContextWriteSubscriber.onError(FluxContextWrite.java:121) ~[reactor-core-3.7.17.jar:3.7.17]
+		at reactor.core.publisher.FluxMapFuseable$MapFuseableConditionalSubscriber.onError(FluxMapFuseable.java:340) ~[reactor-core-3.7.17.jar:3.7.17]
+		at reactor.core.publisher.FluxFilterFuseable$FilterFuseableConditionalSubscriber.onError(FluxFilterFuseable.java:382) ~[reactor-core-3.7.17.jar:3.7.17]
+		at reactor.core.publisher.MonoCollect$CollectSubscriber.onError(MonoCollect.java:135) ~[reactor-core-3.7.17.jar:3.7.17]
+		at reactor.core.publisher.MonoCollect$CollectSubscriber.onNext(MonoCollect.java:112) ~[reactor-core-3.7.17.jar:3.7.17]
+		at reactor.core.publisher.FluxMap$MapSubscriber.onNext(FluxMap.java:122) ~[reactor-core-3.7.17.jar:3.7.17]
+		at reactor.core.publisher.FluxPeek$PeekSubscriber.onNext(FluxPeek.java:200) ~[reactor-core-3.7.17.jar:3.7.17]
+		at reactor.core.publisher.FluxMap$MapSubscriber.onNext(FluxMap.java:122) ~[reactor-core-3.7.17.jar:3.7.17]
+		at reactor.netty.channel.FluxReceive.onInboundNext(FluxReceive.java:377) ~[reactor-netty-core-1.2.16.jar:1.2.16]
+		at reactor.netty.channel.ChannelOperations.onInboundNext(ChannelOperations.java:444) ~[reactor-netty-core-1.2.16.jar:1.2.16]
+		at reactor.netty.http.client.HttpClientOperations.onInboundNext(HttpClientOperations.java:949) ~[reactor-netty-http-1.2.16.jar:1.2.16]
+		at reactor.netty.channel.ChannelOperationsHandler.channelRead(ChannelOperationsHandler.java:115) ~[reactor-netty-core-1.2.16.jar:1.2.16]
+		at io.netty.channel.AbstractChannelHandlerContext.invokeChannelRead(AbstractChannelHandlerContext.java:444) ~[netty-transport-4.1.132.Final.jar:4.1.132.Final]
+		at io.netty.channel.AbstractChannelHandlerContext.invokeChannelRead(AbstractChannelHandlerContext.java:420) ~[netty-transport-4.1.132.Final.jar:4.1.132.Final]
+		at io.netty.channel.AbstractChannelHandlerContext.fireChannelRead(AbstractChannelHandlerContext.java:412) ~[netty-transport-4.1.132.Final.jar:4.1.132.Final]
+		at io.netty.handler.codec.http.HttpContentDecoder$ByteBufForwarder.channelRead(HttpContentDecoder.java:288) ~[netty-codec-http-4.1.132.Final.jar:4.1.132.Final]
+		at io.netty.channel.AbstractChannelHandlerContext.invokeChannelRead(AbstractChannelHandlerContext.java:444) ~[netty-transport-4.1.132.Final.jar:4.1.132.Final]
+		at io.netty.channel.AbstractChannelHandlerContext.invokeChannelRead(AbstractChannelHandlerContext.java:420) ~[netty-transport-4.1.132.Final.jar:4.1.132.Final]
+		at io.netty.channel.AbstractChannelHandlerContext.fireChannelRead(AbstractChannelHandlerContext.java:412) ~[netty-transport-4.1.132.Final.jar:4.1.132.Final]
+		at io.netty.handler.codec.compression.JdkZlibDecoder.decode(JdkZlibDecoder.java:312) ~[netty-codec-4.1.132.Final.jar:4.1.132.Final]
+		at io.netty.handler.codec.ByteToMessageDecoder.decodeRemovalReentryProtection(ByteToMessageDecoder.java:545) ~[netty-codec-4.1.132.Final.jar:4.1.132.Final]
+		at io.netty.handler.codec.ByteToMessageDecoder.callDecode(ByteToMessageDecoder.java:484) ~[netty-codec-4.1.132.Final.jar:4.1.132.Final]
+		at io.netty.handler.codec.ByteToMessageDecoder.channelRead(ByteToMessageDecoder.java:296) ~[netty-codec-4.1.132.Final.jar:4.1.132.Final]
+		at io.netty.channel.AbstractChannelHandlerContext.invokeChannelRead(AbstractChannelHandlerContext.java:444) ~[netty-transport-4.1.132.Final.jar:4.1.132.Final]
+		at io.netty.channel.AbstractChannelHandlerContext.invokeChannelRead(AbstractChannelHandlerContext.java:420) ~[netty-transport-4.1.132.Final.jar:4.1.132.Final]
+		at io.netty.channel.AbstractChannelHandlerContext.fireChannelRead(AbstractChannelHandlerContext.java:412) ~[netty-transport-4.1.132.Final.jar:4.1.132.Final]
+		at io.netty.channel.DefaultChannelPipeline$HeadContext.channelRead(DefaultChannelPipeline.java:1357) ~[netty-transport-4.1.132.Final.jar:4.1.132.Final]
+		at io.netty.channel.AbstractChannelHandlerContext.invokeChannelRead(AbstractChannelHandlerContext.java:440) ~[netty-transport-4.1.132.Final.jar:4.1.132.Final]
+		at io.netty.channel.AbstractChannelHandlerContext.invokeChannelRead(AbstractChannelHandlerContext.java:420) ~[netty-transport-4.1.132.Final.jar:4.1.132.Final]
+		at io.netty.channel.DefaultChannelPipeline.fireChannelRead(DefaultChannelPipeline.java:868) ~[netty-transport-4.1.132.Final.jar:4.1.132.Final]
+		at io.netty.channel.embedded.EmbeddedChannel.writeInbound(EmbeddedChannel.java:348) ~[netty-transport-4.1.132.Final.jar:4.1.132.Final]
+		at io.netty.handler.codec.http.HttpContentDecoder.decode(HttpContentDecoder.java:169) ~[netty-codec-http-4.1.132.Final.jar:4.1.132.Final]
+		at io.netty.handler.codec.http.HttpContentDecoder.decode(HttpContentDecoder.java:48) ~[netty-codec-http-4.1.132.Final.jar:4.1.132.Final]
+		at io.netty.handler.codec.MessageToMessageDecoder.channelRead(MessageToMessageDecoder.java:91) ~[netty-codec-4.1.132.Final.jar:4.1.132.Final]
+		at io.netty.channel.AbstractChannelHandlerContext.invokeChannelRead(AbstractChannelHandlerContext.java:444) ~[netty-transport-4.1.132.Final.jar:4.1.132.Final]
+		at io.netty.channel.AbstractChannelHandlerContext.invokeChannelRead(AbstractChannelHandlerContext.java:420) ~[netty-transport-4.1.132.Final.jar:4.1.132.Final]
+		at io.netty.channel.AbstractChannelHandlerContext.fireChannelRead(AbstractChannelHandlerContext.java:412) ~[netty-transport-4.1.132.Final.jar:4.1.132.Final]
+		at io.netty.channel.CombinedChannelDuplexHandler$DelegatingChannelHandlerContext.fireChannelRead(CombinedChannelDuplexHandler.java:436) ~[netty-transport-4.1.132.Final.jar:4.1.132.Final]
+		at io.netty.handler.codec.ByteToMessageDecoder.fireChannelRead(ByteToMessageDecoder.java:361) ~[netty-codec-4.1.132.Final.jar:4.1.132.Final]
+		at io.netty.handler.codec.ByteToMessageDecoder.channelRead(ByteToMessageDecoder.java:325) ~[netty-codec-4.1.132.Final.jar:4.1.132.Final]
+		at io.netty.channel.CombinedChannelDuplexHandler.channelRead(CombinedChannelDuplexHandler.java:251) ~[netty-transport-4.1.132.Final.jar:4.1.132.Final]
+		at io.netty.channel.AbstractChannelHandlerContext.invokeChannelRead(AbstractChannelHandlerContext.java:442) ~[netty-transport-4.1.132.Final.jar:4.1.132.Final]
+		at io.netty.channel.AbstractChannelHandlerContext.invokeChannelRead(AbstractChannelHandlerContext.java:420) ~[netty-transport-4.1.132.Final.jar:4.1.132.Final]
+		at io.netty.channel.AbstractChannelHandlerContext.fireChannelRead(AbstractChannelHandlerContext.java:412) ~[netty-transport-4.1.132.Final.jar:4.1.132.Final]
+		at io.netty.handler.ssl.SslHandler.unwrap(SslHandler.java:1519) ~[netty-handler-4.1.132.Final.jar:4.1.132.Final]
+		at io.netty.handler.ssl.SslHandler.decodeJdkCompatible(SslHandler.java:1377) ~[netty-handler-4.1.132.Final.jar:4.1.132.Final]
+		at io.netty.handler.ssl.SslHandler.decode(SslHandler.java:1428) ~[netty-handler-4.1.132.Final.jar:4.1.132.Final]
+		at io.netty.handler.codec.ByteToMessageDecoder.decodeRemovalReentryProtection(ByteToMessageDecoder.java:545) ~[netty-codec-4.1.132.Final.jar:4.1.132.Final]
+		at io.netty.handler.codec.ByteToMessageDecoder.callDecode(ByteToMessageDecoder.java:484) ~[netty-codec-4.1.132.Final.jar:4.1.132.Final]
+		at io.netty.handler.codec.ByteToMessageDecoder.channelRead(ByteToMessageDecoder.java:296) ~[netty-codec-4.1.132.Final.jar:4.1.132.Final]
+		at io.netty.channel.AbstractChannelHandlerContext.invokeChannelRead(AbstractChannelHandlerContext.java:444) ~[netty-transport-4.1.132.Final.jar:4.1.132.Final]
+		at io.netty.channel.AbstractChannelHandlerContext.invokeChannelRead(AbstractChannelHandlerContext.java:420) ~[netty-transport-4.1.132.Final.jar:4.1.132.Final]
+		at io.netty.channel.AbstractChannelHandlerContext.fireChannelRead(AbstractChannelHandlerContext.java:412) ~[netty-transport-4.1.132.Final.jar:4.1.132.Final]
+		at io.netty.channel.DefaultChannelPipeline$HeadContext.channelRead(DefaultChannelPipeline.java:1357) ~[netty-transport-4.1.132.Final.jar:4.1.132.Final]
+		at io.netty.channel.AbstractChannelHandlerContext.invokeChannelRead(AbstractChannelHandlerContext.java:440) ~[netty-transport-4.1.132.Final.jar:4.1.132.Final]
+		at io.netty.channel.AbstractChannelHandlerContext.invokeChannelRead(AbstractChannelHandlerContext.java:420) ~[netty-transport-4.1.132.Final.jar:4.1.132.Final]
+		at io.netty.channel.DefaultChannelPipeline.fireChannelRead(DefaultChannelPipeline.java:868) ~[netty-transport-4.1.132.Final.jar:4.1.132.Final]
+		at io.netty.channel.nio.AbstractNioByteChannel$NioByteUnsafe.read(AbstractNioByteChannel.java:171) ~[netty-transport-4.1.132.Final.jar:4.1.132.Final]
+		at io.netty.channel.nio.NioEventLoop.processSelectedKey(NioEventLoop.java:796) ~[netty-transport-4.1.132.Final.jar:4.1.132.Final]
+		at io.netty.channel.nio.NioEventLoop.processSelectedKeysOptimized(NioEventLoop.java:732) ~[netty-transport-4.1.132.Final.jar:4.1.132.Final]
+		at io.netty.channel.nio.NioEventLoop.processSelectedKeys(NioEventLoop.java:658) ~[netty-transport-4.1.132.Final.jar:4.1.132.Final]
+		at io.netty.channel.nio.NioEventLoop.run(NioEventLoop.java:562) ~[netty-transport-4.1.132.Final.jar:4.1.132.Final]
+		at io.netty.util.concurrent.SingleThreadEventExecutor$4.run(SingleThreadEventExecutor.java:998) ~[netty-common-4.1.132.Final.jar:4.1.132.Final]
+		at io.netty.util.internal.ThreadExecutorMap$2.run(ThreadExecutorMap.java:74) ~[netty-common-4.1.132.Final.jar:4.1.132.Final]
+		at io.netty.util.concurrent.FastThreadLocalRunnable.run(FastThreadLocalRunnable.java:30) ~[netty-common-4.1.132.Final.jar:4.1.132.Final]
+		at java.base/java.lang.Thread.run(Thread.java:840) ~[na:na]
+Caused by: org.springframework.core.io.buffer.DataBufferLimitException: Exceeded limit on max bytes to buffer : 262144
+	at org.springframework.core.io.buffer.LimitedDataBufferList.raiseLimitException(LimitedDataBufferList.java:99) ~[spring-core-6.2.17.jar:6.2.17]
+	Suppressed: The stacktrace has been enhanced by Reactor, refer to additional information below: 
+Error has been observed at the following site(s):
+	*__checkpoint ? Body from POST https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image:generateContent?key=AIzaSyCNtVg_X5qxkEdKsDb8AfCMFqdunBTuglo [DefaultClientResponse]
+Original Stack Trace:
+		at org.springframework.core.io.buffer.LimitedDataBufferList.raiseLimitException(LimitedDataBufferList.java:99) ~[spring-core-6.2.17.jar:6.2.17]
+		at org.springframework.core.io.buffer.LimitedDataBufferList.updateCount(LimitedDataBufferList.java:92) ~[spring-core-6.2.17.jar:6.2.17]
+		at org.springframework.core.io.buffer.LimitedDataBufferList.add(LimitedDataBufferList.java:58) ~[spring-core-6.2.17.jar:6.2.17]
+		at reactor.core.publisher.MonoCollect$CollectSubscriber.onNext(MonoCollect.java:103) ~[reactor-core-3.7.17.jar:3.7.17]
+		at reactor.core.publisher.FluxMap$MapSubscriber.onNext(FluxMap.java:122) ~[reactor-core-3.7.17.jar:3.7.17]
+		at reactor.core.publisher.FluxPeek$PeekSubscriber.onNext(FluxPeek.java:200) ~[reactor-core-3.7.17.jar:3.7.17]
+		at reactor.core.publisher.FluxMap$MapSubscriber.onNext(FluxMap.java:122) ~[reactor-core-3.7.17.jar:3.7.17]
+		at reactor.netty.channel.FluxReceive.onInboundNext(FluxReceive.java:377) ~[reactor-netty-core-1.2.16.jar:1.2.16]
+		at reactor.netty.channel.ChannelOperations.onInboundNext(ChannelOperations.java:444) ~[reactor-netty-core-1.2.16.jar:1.2.16]
+		at reactor.netty.http.client.HttpClientOperations.onInboundNext(HttpClientOperations.java:949) ~[reactor-netty-http-1.2.16.jar:1.2.16]
+		at reactor.netty.channel.ChannelOperationsHandler.channelRead(ChannelOperationsHandler.java:115) ~[reactor-netty-core-1.2.16.jar:1.2.16]
+		at io.netty.channel.AbstractChannelHandlerContext.invokeChannelRead(AbstractChannelHandlerContext.java:444) ~[netty-transport-4.1.132.Final.jar:4.1.132.Final]
+		at io.netty.channel.AbstractChannelHandlerContext.invokeChannelRead(AbstractChannelHandlerContext.java:420) ~[netty-transport-4.1.132.Final.jar:4.1.132.Final]
+		at io.netty.channel.AbstractChannelHandlerContext.fireChannelRead(AbstractChannelHandlerContext.java:412) ~[netty-transport-4.1.132.Final.jar:4.1.132.Final]
+		at io.netty.handler.codec.http.HttpContentDecoder$ByteBufForwarder.channelRead(HttpContentDecoder.java:288) ~[netty-codec-http-4.1.132.Final.jar:4.1.132.Final]
+		at io.netty.channel.AbstractChannelHandlerContext.invokeChannelRead(AbstractChannelHandlerContext.java:444) ~[netty-transport-4.1.132.Final.jar:4.1.132.Final]
+		at io.netty.channel.AbstractChannelHandlerContext.invokeChannelRead(AbstractChannelHandlerContext.java:420) ~[netty-transport-4.1.132.Final.jar:4.1.132.Final]
+		at io.netty.channel.AbstractChannelHandlerContext.fireChannelRead(AbstractChannelHandlerContext.java:412) ~[netty-transport-4.1.132.Final.jar:4.1.132.Final]
+		at io.netty.handler.codec.compression.JdkZlibDecoder.decode(JdkZlibDecoder.java:312) ~[netty-codec-4.1.132.Final.jar:4.1.132.Final]
+		at io.netty.handler.codec.ByteToMessageDecoder.decodeRemovalReentryProtection(ByteToMessageDecoder.java:545) ~[netty-codec-4.1.132.Final.jar:4.1.132.Final]
+		at io.netty.handler.codec.ByteToMessageDecoder.callDecode(ByteToMessageDecoder.java:484) ~[netty-codec-4.1.132.Final.jar:4.1.132.Final]
+		at io.netty.handler.codec.ByteToMessageDecoder.channelRead(ByteToMessageDecoder.java:296) ~[netty-codec-4.1.132.Final.jar:4.1.132.Final]
+		at io.netty.channel.AbstractChannelHandlerContext.invokeChannelRead(AbstractChannelHandlerContext.java:444) ~[netty-transport-4.1.132.Final.jar:4.1.132.Final]
+		at io.netty.channel.AbstractChannelHandlerContext.invokeChannelRead(AbstractChannelHandlerContext.java:420) ~[netty-transport-4.1.132.Final.jar:4.1.132.Final]
+		at io.netty.channel.AbstractChannelHandlerContext.fireChannelRead(AbstractChannelHandlerContext.java:412) ~[netty-transport-4.1.132.Final.jar:4.1.132.Final]
+		at io.netty.channel.DefaultChannelPipeline$HeadContext.channelRead(DefaultChannelPipeline.java:1357) ~[netty-transport-4.1.132.Final.jar:4.1.132.Final]
+		at io.netty.channel.AbstractChannelHandlerContext.invokeChannelRead(AbstractChannelHandlerContext.java:440) ~[netty-transport-4.1.132.Final.jar:4.1.132.Final]
+		at io.netty.channel.AbstractChannelHandlerContext.invokeChannelRead(AbstractChannelHandlerContext.java:420) ~[netty-transport-4.1.132.Final.jar:4.1.132.Final]
+		at io.netty.channel.DefaultChannelPipeline.fireChannelRead(DefaultChannelPipeline.java:868) ~[netty-transport-4.1.132.Final.jar:4.1.132.Final]
+		at io.netty.channel.embedded.EmbeddedChannel.writeInbound(EmbeddedChannel.java:348) ~[netty-transport-4.1.132.Final.jar:4.1.132.Final]
+		at io.netty.handler.codec.http.HttpContentDecoder.decode(HttpContentDecoder.java:169) ~[netty-codec-http-4.1.132.Final.jar:4.1.132.Final]
+		at io.netty.handler.codec.http.HttpContentDecoder.decode(HttpContentDecoder.java:48) ~[netty-codec-http-4.1.132.Final.jar:4.1.132.Final]
+		at io.netty.handler.codec.MessageToMessageDecoder.channelRead(MessageToMessageDecoder.java:91) ~[netty-codec-4.1.132.Final.jar:4.1.132.Final]
+		at io.netty.channel.AbstractChannelHandlerContext.invokeChannelRead(AbstractChannelHandlerContext.java:444) ~[netty-transport-4.1.132.Final.jar:4.1.132.Final]
+		at io.netty.channel.AbstractChannelHandlerContext.invokeChannelRead(AbstractChannelHandlerContext.java:420) ~[netty-transport-4.1.132.Final.jar:4.1.132.Final]
+		at io.netty.channel.AbstractChannelHandlerContext.fireChannelRead(AbstractChannelHandlerContext.java:412) ~[netty-transport-4.1.132.Final.jar:4.1.132.Final]
+		at io.netty.channel.CombinedChannelDuplexHandler$DelegatingChannelHandlerContext.fireChannelRead(CombinedChannelDuplexHandler.java:436) ~[netty-transport-4.1.132.Final.jar:4.1.132.Final]
+		at io.netty.handler.codec.ByteToMessageDecoder.fireChannelRead(ByteToMessageDecoder.java:361) ~[netty-codec-4.1.132.Final.jar:4.1.132.Final]
+		at io.netty.handler.codec.ByteToMessageDecoder.channelRead(ByteToMessageDecoder.java:325) ~[netty-codec-4.1.132.Final.jar:4.1.132.Final]
+		at io.netty.channel.CombinedChannelDuplexHandler.channelRead(CombinedChannelDuplexHandler.java:251) ~[netty-transport-4.1.132.Final.jar:4.1.132.Final]
+		at io.netty.channel.AbstractChannelHandlerContext.invokeChannelRead(AbstractChannelHandlerContext.java:442) ~[netty-transport-4.1.132.Final.jar:4.1.132.Final]
+		at io.netty.channel.AbstractChannelHandlerContext.invokeChannelRead(AbstractChannelHandlerContext.java:420) ~[netty-transport-4.1.132.Final.jar:4.1.132.Final]
+		at io.netty.channel.AbstractChannelHandlerContext.fireChannelRead(AbstractChannelHandlerContext.java:412) ~[netty-transport-4.1.132.Final.jar:4.1.132.Final]
+		at io.netty.handler.ssl.SslHandler.unwrap(SslHandler.java:1519) ~[netty-handler-4.1.132.Final.jar:4.1.132.Final]
+		at io.netty.handler.ssl.SslHandler.decodeJdkCompatible(SslHandler.java:1377) ~[netty-handler-4.1.132.Final.jar:4.1.132.Final]
+		at io.netty.handler.ssl.SslHandler.decode(SslHandler.java:1428) ~[netty-handler-4.1.132.Final.jar:4.1.132.Final]
+		at io.netty.handler.codec.ByteToMessageDecoder.decodeRemovalReentryProtection(ByteToMessageDecoder.java:545) ~[netty-codec-4.1.132.Final.jar:4.1.132.Final]
+		at io.netty.handler.codec.ByteToMessageDecoder.callDecode(ByteToMessageDecoder.java:484) ~[netty-codec-4.1.132.Final.jar:4.1.132.Final]
+		at io.netty.handler.codec.ByteToMessageDecoder.channelRead(ByteToMessageDecoder.java:296) ~[netty-codec-4.1.132.Final.jar:4.1.132.Final]
+		at io.netty.channel.AbstractChannelHandlerContext.invokeChannelRead(AbstractChannelHandlerContext.java:444) ~[netty-transport-4.1.132.Final.jar:4.1.132.Final]
+		at io.netty.channel.AbstractChannelHandlerContext.invokeChannelRead(AbstractChannelHandlerContext.java:420) ~[netty-transport-4.1.132.Final.jar:4.1.132.Final]
+		at io.netty.channel.AbstractChannelHandlerContext.fireChannelRead(AbstractChannelHandlerContext.java:412) ~[netty-transport-4.1.132.Final.jar:4.1.132.Final]
+		at io.netty.channel.DefaultChannelPipeline$HeadContext.channelRead(DefaultChannelPipeline.java:1357) ~[netty-transport-4.1.132.Final.jar:4.1.132.Final]
+		at io.netty.channel.AbstractChannelHandlerContext.invokeChannelRead(AbstractChannelHandlerContext.java:440) ~[netty-transport-4.1.132.Final.jar:4.1.132.Final]
+		at io.netty.channel.AbstractChannelHandlerContext.invokeChannelRead(AbstractChannelHandlerContext.java:420) ~[netty-transport-4.1.132.Final.jar:4.1.132.Final]
+		at io.netty.channel.DefaultChannelPipeline.fireChannelRead(DefaultChannelPipeline.java:868) ~[netty-transport-4.1.132.Final.jar:4.1.132.Final]
+		at io.netty.channel.nio.AbstractNioByteChannel$NioByteUnsafe.read(AbstractNioByteChannel.java:171) ~[netty-transport-4.1.132.Final.jar:4.1.132.Final]
+		at io.netty.channel.nio.NioEventLoop.processSelectedKey(NioEventLoop.java:796) ~[netty-transport-4.1.132.Final.jar:4.1.132.Final]
+		at io.netty.channel.nio.NioEventLoop.processSelectedKeysOptimized(NioEventLoop.java:732) ~[netty-transport-4.1.132.Final.jar:4.1.132.Final]
+		at io.netty.channel.nio.NioEventLoop.processSelectedKeys(NioEventLoop.java:658) ~[netty-transport-4.1.132.Final.jar:4.1.132.Final]
+		at io.netty.channel.nio.NioEventLoop.run(NioEventLoop.java:562) ~[netty-transport-4.1.132.Final.jar:4.1.132.Final]
+		at io.netty.util.concurrent.SingleThreadEventExecutor$4.run(SingleThreadEventExecutor.java:998) ~[netty-common-4.1.132.Final.jar:4.1.132.Final]
+		at io.netty.util.internal.ThreadExecutorMap$2.run(ThreadExecutorMap.java:74) ~[netty-common-4.1.132.Final.jar:4.1.132.Final]
+		at io.netty.util.concurrent.FastThreadLocalRunnable.run(FastThreadLocalRunnable.java:30) ~[netty-common-4.1.132.Final.jar:4.1.132.Final]
+		at java.base/java.lang.Thread.run(Thread.java:840) ~[na:na]
+
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD FAILURE
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  02:04 h
+[INFO] Finished at: 2026-04-18T23:48:16-03:00
+[INFO] ------------------------------------------------------------------------
+[ERROR] Failed to execute goal org.springframework.boot:spring-boot-maven-plugin:3.5.13:run (default-cli) on project back-end: Process terminated with exit code: -1 -> [Help 1]
+[ERROR] 
+[ERROR] To see the full stack trace of the errors, re-run Maven with the -e switch.
+[ERROR] Re-run Maven using the -X switch to enable full debug logging.
+[ERROR] 
+[ERROR] For more information about the errors and possible solutions, please read the following articles:
+[ERROR] [Help 1] http://cwiki.apache.org/confluence/display/MAVEN/MojoExecutionException
+
+C:\Users\Rafael\Downloads\ramark\back-end\bananaproservice>

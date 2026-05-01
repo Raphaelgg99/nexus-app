@@ -1,0 +1,50 @@
+<section class="login-page">
+  <div class="login-page__panel">
+    <div class="login-brand">
+      <img src="/assets/logonexusapp.png" alt="Nexus" class="login-brand__logo" />
+      <div class="login-brand__copy">
+        <span class="login-brand__eyebrow">Acesso corporativo</span>
+        <h1>Entre para acessar o dashboard interno da Nexus.</h1>
+        <p>
+          Use suas credenciais de funcionário para gerenciar mockups, fluxos e gerações do sistema.
+        </p>
+      </div>
+    </div>
+
+    <form class="login-card" novalidate (submit)="submit($event)">
+      <span class="login-card__tag">Login</span>
+      <h2>Autenticação segura</h2>
+      <p class="login-card__intro">
+        Informe seu usuário e sua senha para continuar.
+      </p>
+      
+      <label class="login-field">
+        <span>Usuario</span>
+        <input
+          type="text"
+          name="userName"
+          [(ngModel)]="userName"
+          autocomplete="username"
+          placeholder="Seu usuario"
+        />
+      </label>
+
+      <label class="login-field">
+        <span>Senha</span>
+        <input
+          type="password"
+          name="password"
+          [(ngModel)]="password"
+          autocomplete="current-password"
+          placeholder="Sua senha"
+        />
+      </label>
+
+      <p class="login-card__error" *ngIf="errorMessage">{{ errorMessage }}</p>
+
+      <button class="login-card__submit" type="button" [disabled]="isSubmitting" (click)="submit($event)">
+        {{ isSubmitting ? 'Entrando...' : 'Entrar no sistema' }}
+      </button>
+    </form>
+  </div>
+</section>

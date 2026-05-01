@@ -1,0 +1,108 @@
+<section class="user-management-page">
+  <header class="user-management-hero">
+    <div class="user-management-hero__copy">
+      <span class="user-management-tag">Admin</span>
+      <h1>Gestão de usuários</h1>
+      <p>
+        Visualize, crie, atualize e remova usuários com controle centralizado de acesso.
+      </p>
+    </div>
+  </header>
+
+  <section class="user-management-grid">
+    <article class="user-card user-card--list">
+      <div class="user-card__header">
+        <div>
+          <span class="user-management-tag">Usuários</span>
+          <h2>Equipe cadastrada</h2>
+        </div>
+
+        <button class="user-button user-button--ghost" type="button" (click)="startCreate()">
+          Novo usuário
+        </button>
+      </div>
+
+      <p class="user-feedback user-feedback--error" *ngIf="errorMessage">
+        {{ errorMessage }}
+      </p>
+      <p class="user-feedback user-feedback--success" *ngIf="successMessage">
+        {{ successMessage }}
+      </p>
+
+      <div class="user-empty-state" *ngIf="isLoading">Carregando usuários...</div>
+
+      <div class="user-list" *ngIf="!isLoading && users.length">
+        <article
+          class="user-list__item"
+          *ngFor="let user of users; trackBy: trackByUserId"
+          [class.user-list__item--active]="selectedUserId === user.id"
+        >
+          <button class="user-list__main" type="button" (click)="selectUser(user)">
+            <strong>{{ user.userName }}</strong>
+            <span>{{ user.role }}</span>
+          </button>
+
+          <div class="user-list__actions">
+            <button class="user-button user-button--ghost" type="button" (click)="selectUser(user)">
+              Editar
+            </button>
+            <button class="user-button user-button--danger" type="button" (click)="delete(user)">
+              Excluir
+            </button>
+          </div>
+        </article>
+      </div>
+
+      <div class="user-empty-state" *ngIf="!isLoading && !users.length">
+        Nenhum usuário cadastrado ainda.
+      </div>
+    </article>
+
+    <article class="user-card user-card--form">
+      <div class="user-card__header">
+        <div>
+          <span class="user-management-tag">{{ isEditing ? 'Edição' : 'Criação' }}</span>
+          <h2>{{ isEditing ? 'Atualizar usuário' : 'Criar usuário' }}</h2>
+        </div>
+      </div>
+
+      <div class="user-form">
+        <label class="user-field">
+          <span>Usuário</span>
+          <input
+            type="text"
+            name="userName"
+            [(ngModel)]="form.userName"
+            placeholder="Nome do usuario"
+          />
+        </label>
+
+        <label class="user-field">
+          <span>Perfil</span>
+          <select name="role" [(ngModel)]="form.role">
+            <option *ngFor="let role of roles" [value]="role">{{ role }}</option>
+          </select>
+        </label>
+
+        <label class="user-field">
+          <span>{{ isEditing ? 'Nova senha (opcional)' : 'Senha' }}</span>
+          <input
+            type="password"
+            name="password"
+            [(ngModel)]="form.password"
+            [placeholder]="isEditing ? 'Digite apenas se quiser trocar a senha' : 'Senha do usuario'"
+          />
+        </label>
+
+        <div class="user-form__actions">
+          <button class="user-button user-button--primary" type="button" [disabled]="isSaving" (click)="save()">
+            {{ isSaving ? 'Salvando...' : (isEditing ? 'Atualizar usuário' : 'Criar usuário') }}
+          </button>
+          <button class="user-button user-button--ghost" type="button" (click)="startCreate()">
+            Limpar
+          </button>
+        </div>
+      </div>
+    </article>
+  </section>
+</section>

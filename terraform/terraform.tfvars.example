@@ -1,0 +1,26 @@
+aws_region              = "us-east-1"
+project_name            = "nexusapp"
+environment             = "prod"
+instance_type           = "t2.micro"
+vpc_id                  = ""
+subnet_ids              = []
+
+db_name                  = "nexuschatbot_db"
+db_username              = "change-me"
+db_password              = "change-me"
+db_instance_class        = "db.t3.micro"
+db_engine_version        = "16.4"
+db_allocated_storage     = 20
+db_max_allocated_storage = 100
+db_backup_retention_period = 7
+skip_final_snapshot      = true
+
+initial_admin_username   = "change-me"
+initial_admin_password   = "change-me"
+
+jwt_secret               = "change-me"
+secret_key               = "change-me"
+jwt_expiration           = 86400000
+
+openai_access_token      = "change-me"
+nanobanana_access_token  = "change-me"
