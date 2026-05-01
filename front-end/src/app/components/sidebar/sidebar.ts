@@ -62,7 +62,7 @@ export class Sidebar {
   private static readonly elevenLabsScriptId = 'elevenlabs-convai-widget-script';
   private static readonly elevenLabsScriptSrc =
     'https://unpkg.com/@elevenlabs/convai-widget-embed';
-  private static readonly elevenLabsAgentId = 'agent_2701kn38jvn8fta9tmjr33q3sa3w';
+  private static readonly elevenLabsAgentId = 'agent_6901ke4d5fqceekbqhgvews4bf5y';
 
   readonly iconDashboard = LayoutDashboard;
   readonly iconImageGenerator = WandSparkles;
