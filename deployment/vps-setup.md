@@ -6,25 +6,15 @@
 - Docker Compose plugin
 - Acesso SSH a partir do GitHub Actions
 
-## Secrets do GitHub
+## Secrets e Variables do GitHub
 
 Configure estes secrets no repositório:
 
-- `VPS_HOST`
-- `VPS_USER`
 - `VPS_SSH_KEY`
-- `VPS_PORT` opcional, padrão `22`
-- `VPS_APP_DIR` opcional, padrão `/opt/nexus-app`
 - `GHCR_USERNAME` opcional, necessário se o pacote GHCR estiver privado
 - `GHCR_TOKEN` opcional, token com permissão `read:packages`
-- `DB_HOST`
-- `DB_PORT`
-- `DB_NAME`
 - `DB_USERNAME`
 - `DB_PASSWORD`
-- `DB_SSL_MODE`
-- `DB_JDBC_PARAMS` opcional. Use `&prepareThreshold=0` no Supabase Transaction Pooler.
-- `FRONTEND_URL`
 - `JWT_SECRET`
 - `SECRET_KEY`
 - `JWT_EXPIRATION`
@@ -32,6 +22,20 @@ Configure estes secrets no repositório:
 - `INITIAL_ADMIN_PASSWORD`
 - `OPENAI_ACCESS_TOKEN`
 - `NANOBANANA_ACCESS_TOKEN`
+
+Configure estas variables no repositório:
+
+- `VPS_HOST`
+- `VPS_USER`
+- `VPS_PORT` opcional, padrão `22`
+- `VPS_APP_DIR` opcional, padrão `/opt/nexus-app`
+- `HTTP_PORT` opcional, padrão `80`
+- `FRONTEND_URL`
+- `DB_HOST`
+- `DB_PORT`
+- `DB_NAME`
+- `DB_SSL_MODE`
+- `DB_JDBC_PARAMS` opcional. Use `&prepareThreshold=0` no Supabase Transaction Pooler.
 
 ## Observações
 
