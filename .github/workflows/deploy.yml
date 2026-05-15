@@ -1,4 +1,4 @@
-name: Deploy Application
+name: Deploy to VPS
 
 on:
   push:
@@ -8,19 +8,19 @@ on:
 
 permissions:
   contents: read
+  packages: write
 
 concurrency:
   group: deploy-production
   cancel-in-progress: false
 
 env:
-  AWS_REGION: ${{ vars.AWS_REGION }}
   BACKEND_DIR: back-end/nexusapp
   FRONTEND_DIR: front-end
 
 jobs:
   backend_ci:
-    name: Build backend
+    name: Test backend
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -39,16 +39,6 @@ jobs:
 
       - name: Run backend tests
         run: mvn -B -ntp test
-
-      - name: Package backend
-        run: mvn -B -ntp -DskipTests package
-
-      - name: Upload backend artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: backend-jar
-          path: back-end/nexusapp/target/*.jar
-          if-no-files-found: error
 
   frontend_ci:
     name: Build frontend
@@ -74,227 +64,147 @@ jobs:
       - name: Build frontend
         run: npm run build -- --configuration production
 
-      - name: Upload frontend artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: frontend-dist
-          path: front-end/dist/nexus-front/browser
-          if-no-files-found: error
-
-  deploy_backend:
-    name: Deploy backend to Elastic Beanstalk
+  build_images:
+    name: Build and push images
     runs-on: ubuntu-latest
     needs:
       - backend_ci
+      - frontend_ci
+    outputs:
+      backend_image: ${{ steps.images.outputs.backend_image }}
+      frontend_image: ${{ steps.images.outputs.frontend_image }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Resolve image names
+        id: images
+        shell: bash
+        run: |
+          IMAGE_PREFIX="ghcr.io/${GITHUB_REPOSITORY,,}"
+          echo "backend_image=${IMAGE_PREFIX}/backend:${GITHUB_SHA}" >> "$GITHUB_OUTPUT"
+          echo "frontend_image=${IMAGE_PREFIX}/frontend:${GITHUB_SHA}" >> "$GITHUB_OUTPUT"
+          echo "backend_latest=${IMAGE_PREFIX}/backend:latest" >> "$GITHUB_OUTPUT"
+          echo "frontend_latest=${IMAGE_PREFIX}/frontend:latest" >> "$GITHUB_OUTPUT"
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push backend
+        uses: docker/build-push-action@v6
+        with:
+          context: ${{ env.BACKEND_DIR }}
+          push: true
+          tags: |
+            ${{ steps.images.outputs.backend_image }}
+            ${{ steps.images.outputs.backend_latest }}
+          cache-from: type=gha,scope=backend
+          cache-to: type=gha,mode=max,scope=backend
+
+      - name: Build and push frontend
+        uses: docker/build-push-action@v6
+        with:
+          context: ${{ env.FRONTEND_DIR }}
+          push: true
+          tags: |
+            ${{ steps.images.outputs.frontend_image }}
+            ${{ steps.images.outputs.frontend_latest }}
+          cache-from: type=gha,scope=frontend
+          cache-to: type=gha,mode=max,scope=frontend
+
+  deploy:
+    name: Deploy on VPS
+    runs-on: ubuntu-latest
+    needs:
+      - build_images
     environment: production
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Download backend artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: backend-jar
-          path: backend-artifact
-
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ env.AWS_REGION }}
-
-      - name: Build Elastic Beanstalk runtime settings
+      - name: Prepare deploy files
         shell: bash
         env:
-          DB_HOST: ${{ vars.DB_HOST }}
-          DB_PORT: ${{ vars.DB_PORT }}
-          DB_NAME: ${{ vars.DB_NAME }}
-          FRONTEND_URL: ${{ vars.FRONTEND_URL }}
-          JWT_EXPIRATION: ${{ vars.JWT_EXPIRATION }}
+          BACKEND_IMAGE: ${{ needs.build_images.outputs.backend_image }}
+          FRONTEND_IMAGE: ${{ needs.build_images.outputs.frontend_image }}
+          HTTP_PORT: ${{ vars.HTTP_PORT }}
+          FRONTEND_URL: ${{ secrets.FRONTEND_URL }}
+          DB_HOST: ${{ secrets.DB_HOST }}
+          DB_PORT: ${{ secrets.DB_PORT }}
+          DB_NAME: ${{ secrets.DB_NAME }}
           DB_USERNAME: ${{ secrets.DB_USERNAME }}
           DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          DB_SSL_MODE: ${{ secrets.DB_SSL_MODE }}
+          DB_JDBC_PARAMS: ${{ secrets.DB_JDBC_PARAMS }}
           JWT_SECRET: ${{ secrets.JWT_SECRET }}
           SECRET_KEY: ${{ secrets.SECRET_KEY }}
+          JWT_EXPIRATION: ${{ secrets.JWT_EXPIRATION }}
           INITIAL_ADMIN_USERNAME: ${{ secrets.INITIAL_ADMIN_USERNAME }}
           INITIAL_ADMIN_PASSWORD: ${{ secrets.INITIAL_ADMIN_PASSWORD }}
           OPENAI_ACCESS_TOKEN: ${{ secrets.OPENAI_ACCESS_TOKEN }}
           NANOBANANA_ACCESS_TOKEN: ${{ secrets.NANOBANANA_ACCESS_TOKEN }}
         run: |
-          aws elasticbeanstalk describe-configuration-settings \
-            --application-name "${{ vars.EB_APPLICATION_NAME }}" \
-            --environment-name "${{ vars.EB_ENVIRONMENT_NAME }}" \
-            > eb-current-settings.json
+          mkdir -p deploy-files
+          cp docker-compose.production.yml deploy-files/docker-compose.yml
+          {
+            echo "BACKEND_IMAGE=${BACKEND_IMAGE}"
+            echo "FRONTEND_IMAGE=${FRONTEND_IMAGE}"
+            echo "HTTP_PORT=${HTTP_PORT:-80}"
+            echo "FRONTEND_URL=${FRONTEND_URL}"
+            echo "POSTGRES_HOST=${DB_HOST}"
+            echo "POSTGRES_PORT=${DB_PORT:-5432}"
+            echo "POSTGRES_DB=${DB_NAME}"
+            echo "POSTGRES_USER=${DB_USERNAME}"
+            echo "POSTGRES_PASSWORD=${DB_PASSWORD}"
+            echo "POSTGRES_SSL_MODE=${DB_SSL_MODE:-require}"
+            echo "POSTGRES_JDBC_PARAMS=${DB_JDBC_PARAMS}"
+            echo "JWT_SECRET=${JWT_SECRET}"
+            echo "SECRET_KEY=${SECRET_KEY}"
+            echo "JWT_EXPIRATION=${JWT_EXPIRATION:-86400000}"
+            echo "INITIAL_ADMIN_USERNAME=${INITIAL_ADMIN_USERNAME}"
+            echo "INITIAL_ADMIN_PASSWORD=${INITIAL_ADMIN_PASSWORD}"
+            echo "OPENAI_ACCESS_TOKEN=${OPENAI_ACCESS_TOKEN}"
+            echo "NANOBANANA_ACCESS_TOKEN=${NANOBANANA_ACCESS_TOKEN}"
+          } > deploy-files/.env.production
 
-          python <<'PY'
-          import json
-          import os
-
-          with open("eb-current-settings.json", encoding="utf-8") as fh:
-              payload = json.load(fh)
-
-          option_settings = payload["ConfigurationSettings"][0]["OptionSettings"]
-          current = {
-              item["OptionName"]: item.get("Value", "")
-              for item in option_settings
-              if item.get("Namespace") == "aws:elasticbeanstalk:application:environment"
-          }
-
-          def pick(source_name, option_name, fallback=""):
-              value = os.getenv(source_name)
-              if value not in (None, ""):
-                  return value
-              return current.get(option_name, fallback)
-
-          managed = {
-              "POSTGRES_HOST": pick("DB_HOST", "POSTGRES_HOST"),
-              "POSTGRES_PORT": pick("DB_PORT", "POSTGRES_PORT", "5433"),
-              "POSTGRES_DB": pick("DB_NAME", "POSTGRES_DB", "nexuschatbot_db"),
-              "POSTGRES_USER": pick("DB_USERNAME", "POSTGRES_USER"),
-              "POSTGRES_PASSWORD": pick("DB_PASSWORD", "POSTGRES_PASSWORD"),
-              "JWT_SECRET": pick("JWT_SECRET", "JWT_SECRET"),
-              "SECRET_KEY": pick("SECRET_KEY", "SECRET_KEY"),
-              "JWT_EXPIRATION": pick("JWT_EXPIRATION", "JWT_EXPIRATION", "86400000"),
-              "INITIAL_ADMIN_USERNAME": pick("INITIAL_ADMIN_USERNAME", "INITIAL_ADMIN_USERNAME"),
-              "INITIAL_ADMIN_PASSWORD": pick("INITIAL_ADMIN_PASSWORD", "INITIAL_ADMIN_PASSWORD"),
-              "OPENAI_ACCESS_TOKEN": pick("OPENAI_ACCESS_TOKEN", "OPENAI_ACCESS_TOKEN"),
-              "NANOBANANA_ACCESS_TOKEN": pick("NANOBANANA_ACCESS_TOKEN", "NANOBANANA_ACCESS_TOKEN"),
-              "FRONTEND_URL": pick("FRONTEND_URL", "FRONTEND_URL"),
-              "PORT": current.get("PORT", "5000"),
-              "SERVER_PORT": current.get("SERVER_PORT", "5000"),
-          }
-
-          rendered = [
-              {
-                  "Namespace": "aws:elasticbeanstalk:application:environment",
-                  "OptionName": key,
-                  "Value": value,
-              }
-              for key, value in managed.items()
-              if value != ""
-          ]
-
-          with open("eb-option-settings.json", "w", encoding="utf-8") as fh:
-              json.dump(rendered, fh)
-          PY
-
-      - name: Create Elastic Beanstalk source bundle
-        shell: bash
-        run: |
-          JAR_PATH="$(find backend-artifact -name '*.jar' | head -n 1)"
-          mkdir -p backend-deploy
-          cp "$JAR_PATH" backend-deploy/app.jar
-          printf 'web: java -Dserver.port=$PORT -jar app.jar\n' > backend-deploy/Procfile
-          cd backend-deploy
-          zip -r ../backend-deploy.zip .
-
-      - name: Upload source bundle to S3
-        shell: bash
-        run: |
-          VERSION_LABEL="${GITHUB_SHA}"
-          S3_KEY="backend/${VERSION_LABEL}.zip"
-          aws s3 cp backend-deploy.zip "s3://${{ vars.EB_ARTIFACT_BUCKET }}/${S3_KEY}"
-          echo "VERSION_LABEL=${VERSION_LABEL}" >> "$GITHUB_ENV"
-          echo "S3_KEY=${S3_KEY}" >> "$GITHUB_ENV"
-
-      - name: Create application version if needed
-        shell: bash
-        run: |
-          EXISTING_VERSION="$(aws elasticbeanstalk describe-application-versions \
-            --application-name "${{ vars.EB_APPLICATION_NAME }}" \
-            --version-labels "${{ env.VERSION_LABEL }}" \
-            --query 'ApplicationVersions[0].VersionLabel' \
-            --output text)"
-
-          if [ "${EXISTING_VERSION}" = "${{ env.VERSION_LABEL }}" ]; then
-            echo "Elastic Beanstalk application version ${VERSION_LABEL} already exists. Reusing it."
-            exit 0
-          fi
-
-          aws elasticbeanstalk create-application-version \
-            --application-name "${{ vars.EB_APPLICATION_NAME }}" \
-            --version-label "${{ env.VERSION_LABEL }}" \
-            --source-bundle S3Bucket="${{ vars.EB_ARTIFACT_BUCKET }}",S3Key="${{ env.S3_KEY }}"
-
-      - name: Deploy application version
-        run: |
-          aws elasticbeanstalk update-environment \
-            --environment-name "${{ vars.EB_ENVIRONMENT_NAME }}" \
-            --version-label "${{ env.VERSION_LABEL }}" \
-            --option-settings file://eb-option-settings.json
-
-      - name: Wait for environment update
-        run: |
-          aws elasticbeanstalk wait environment-updated \
-            --environment-names "${{ vars.EB_ENVIRONMENT_NAME }}"
-
-      - name: Verify environment health
-        shell: bash
-        run: |
-          STATUS="$(aws elasticbeanstalk describe-environments \
-            --environment-names "${{ vars.EB_ENVIRONMENT_NAME }}" \
-            --query 'Environments[0].Status' \
-            --output text)"
-          HEALTH="$(aws elasticbeanstalk describe-environments \
-            --environment-names "${{ vars.EB_ENVIRONMENT_NAME }}" \
-            --query 'Environments[0].Health' \
-            --output text)"
-
-          echo "Elastic Beanstalk status: ${STATUS}"
-          echo "Elastic Beanstalk health: ${HEALTH}"
-
-          if [ "${STATUS}" != "Ready" ]; then
-            echo "Elastic Beanstalk environment is not Ready."
-            exit 1
-          fi
-
-          if [ "${HEALTH}" = "Yellow" ]; then
-            echo "Elastic Beanstalk environment health is Yellow. Proceeding with a warning."
-            exit 0
-          fi
-
-          if [ "${HEALTH}" != "Green" ] && [ "${HEALTH}" != "Ok" ]; then
-            echo "Elastic Beanstalk environment health is not healthy enough for a successful deploy."
-            exit 1
-          fi
-
-  deploy_frontend:
-    name: Deploy frontend to S3 and CloudFront
-    runs-on: ubuntu-latest
-    needs:
-      - frontend_ci
-    environment: production
-
-    steps:
-      - name: Download frontend artifact
-        uses: actions/download-artifact@v4
+      - name: Copy compose files to VPS
+        uses: appleboy/scp-action@v0.1.7
         with:
-          name: frontend-dist
-          path: frontend-dist
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          port: ${{ secrets.VPS_PORT || 22 }}
+          source: "deploy-files/*,deploy-files/.env.production"
+          target: ${{ secrets.VPS_APP_DIR || '/opt/nexus-app' }}
+          strip_components: 1
 
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
+      - name: Restart services on VPS
+        uses: appleboy/ssh-action@v1.2.0
+        env:
+          GHCR_USERNAME: ${{ secrets.GHCR_USERNAME }}
+          GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
+          VPS_APP_DIR: ${{ secrets.VPS_APP_DIR || '/opt/nexus-app' }}
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ env.AWS_REGION }}
-
-      - name: Upload static assets with long cache
-        run: |
-          aws s3 sync frontend-dist "s3://${{ vars.FRONTEND_BUCKET }}" \
-            --delete \
-            --cache-control "public,max-age=31536000,immutable" \
-            --exclude "index.html"
-
-      - name: Upload index.html with no-cache
-        run: |
-          aws s3 cp frontend-dist/index.html "s3://${{ vars.FRONTEND_BUCKET }}/index.html" \
-            --cache-control "no-cache,no-store,must-revalidate" \
-            --content-type "text/html"
-
-      - name: Invalidate CloudFront cache
-        run: |
-          aws cloudfront create-invalidation \
-            --distribution-id "${{ vars.CLOUDFRONT_DISTRIBUTION_ID }}" \
-            --paths "/*"
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          port: ${{ secrets.VPS_PORT || 22 }}
+          envs: GHCR_USERNAME,GHCR_TOKEN,VPS_APP_DIR
+          script: |
+            set -e
+            cd "$VPS_APP_DIR"
+            if [ -n "$GHCR_USERNAME" ] && [ -n "$GHCR_TOKEN" ]; then
+              echo "$GHCR_TOKEN" | docker login ghcr.io -u "$GHCR_USERNAME" --password-stdin
+            fi
+            docker compose --env-file .env.production pull
+            docker compose --env-file .env.production up -d --remove-orphans
+            docker compose --env-file .env.production ps

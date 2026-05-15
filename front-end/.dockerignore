@@ -1,0 +1,9 @@
+.env
+.env.*
+node_modules
+dist
+.angular
+.git
+.idea
+Dockerfile
+npm-debug.log
