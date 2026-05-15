@@ -29,7 +29,7 @@ Configure estas variables no repositório:
 - `VPS_USER`
 - `VPS_PORT` opcional, padrão `22`
 - `VPS_APP_DIR` opcional, padrão `nexus-app` no home do usuário SSH
-- `HTTP_PORT` opcional, padrão `80`
+- `HTTP_PORT` opcional, padrão `8088`
 - `FRONTEND_URL`
 - `DB_HOST`
 - `DB_PORT`
