@@ -206,7 +206,7 @@ jobs:
           key: ${{ env.DEPLOY_SSH_KEY }}
           port: ${{ secrets.VPS_PORT || vars.VPS_PORT || 22 }}
           source: "deploy-files/*,deploy-files/.env.production"
-          target: ${{ secrets.VPS_APP_DIR || vars.VPS_APP_DIR || '/opt/nexus-app' }}
+          target: ${{ secrets.VPS_APP_DIR || vars.VPS_APP_DIR || 'nexus-app' }}
           strip_components: 1
 
       - name: Restart services on VPS
@@ -214,7 +214,7 @@ jobs:
         env:
           GHCR_USERNAME: ${{ secrets.GHCR_USERNAME }}
           GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
-          VPS_APP_DIR: ${{ secrets.VPS_APP_DIR || vars.VPS_APP_DIR || '/opt/nexus-app' }}
+          VPS_APP_DIR: ${{ secrets.VPS_APP_DIR || vars.VPS_APP_DIR || 'nexus-app' }}
         with:
           host: ${{ secrets.VPS_HOST || vars.VPS_HOST }}
           username: ${{ secrets.VPS_USER || vars.VPS_USER }}
