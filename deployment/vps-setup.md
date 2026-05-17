@@ -30,7 +30,6 @@ Configure estas variables no repositório:
 - `VPS_PORT` opcional, padrão `22`
 - `VPS_APP_DIR` opcional, padrão `nexus-app` no home do usuário SSH
 - `HTTP_PORT` opcional, padrão `8088`
-- `HTTPS_PORT` opcional, padrão `443`
 - `SITE_DOMAIN` opcional, padrão `nexusivbedtech.sbs`
 - `FRONTEND_URL`
 - `DB_HOST`
@@ -43,4 +42,4 @@ Configure estas variables no repositório:
 
 O `docker-compose.production.yml` não cria Postgres. O backend conecta diretamente no Supabase usando as variáveis acima.
 
-O deploy sobe um Caddy para HTTPS automático em `HTTPS_PORT`. Para usar `https://nexusivbedtech.sbs` sem porta, a porta `443` precisa estar livre e liberada no firewall da VPS.
+O deploy do Nexus não publica HTTPS diretamente. A aplicação fica em `HTTP_PORT`, por padrão `8088`, e o Caddy existente da VPS deve rotear `https://nexusivbedtech.sbs` para `http://127.0.0.1:8088`.

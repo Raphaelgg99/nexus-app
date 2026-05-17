@@ -137,7 +137,6 @@ jobs:
           BACKEND_IMAGE: ${{ needs.build_images.outputs.backend_image }}
           FRONTEND_IMAGE: ${{ needs.build_images.outputs.frontend_image }}
           HTTP_PORT: ${{ vars.HTTP_PORT }}
-          HTTPS_PORT: ${{ vars.HTTPS_PORT }}
           SITE_DOMAIN: ${{ secrets.SITE_DOMAIN || vars.SITE_DOMAIN }}
           FRONTEND_URL: ${{ secrets.FRONTEND_URL || vars.FRONTEND_URL }}
           DB_HOST: ${{ secrets.DB_HOST || vars.DB_HOST }}
@@ -157,7 +156,6 @@ jobs:
         run: |
           mkdir -p deploy-files
           cp docker-compose.production.yml deploy-files/docker-compose.yml
-          cp deployment/Caddyfile deploy-files/Caddyfile
           PUBLIC_FRONTEND_URL="${FRONTEND_URL:-https://${SITE_DOMAIN:-nexusivbedtech.sbs}}"
           if [ -n "$SITE_DOMAIN" ]; then
             PUBLIC_FRONTEND_URL="https://${SITE_DOMAIN}"
@@ -167,7 +165,6 @@ jobs:
             echo "BACKEND_IMAGE=${BACKEND_IMAGE}"
             echo "FRONTEND_IMAGE=${FRONTEND_IMAGE}"
             echo "HTTP_PORT=${HTTP_PORT:-8088}"
-            echo "HTTPS_PORT=${HTTPS_PORT:-443}"
             echo "SITE_DOMAIN=${SITE_DOMAIN:-nexusivbedtech.sbs}"
             echo "FRONTEND_URL=${PUBLIC_FRONTEND_URL}"
             echo "POSTGRES_HOST=${DB_HOST}"
