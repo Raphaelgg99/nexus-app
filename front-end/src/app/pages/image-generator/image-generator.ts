@@ -1,6 +1,11 @@
 import { CommonModule } from '@angular/common';
 import { ChangeDetectorRef, Component, ElementRef, OnDestroy, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import {
+  LucideAngularModule,
+  Send,
+  X,
+} from 'lucide-angular';
 import { finalize, switchMap } from 'rxjs';
 
 import {
@@ -8,6 +13,10 @@ import {
   FolderResponse,
   MockupResponse,
 } from '../../services/folder-mockup';
+import {
+  CampaignDispatch,
+  CampaignDispatchResponse,
+} from '../../services/campaign-dispatch';
 import { GeneratedPrototype, Prototype } from '../../services/prototype';
 
 type SystemProductOption = MockupResponse & {
@@ -17,7 +26,7 @@ type SystemProductOption = MockupResponse & {
 
 @Component({
   selector: 'app-image-generator',
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, LucideAngularModule],
   templateUrl: './image-generator.html',
   styleUrl: './image-generator.css',
 })
@@ -26,6 +35,8 @@ export class ImageGenerator implements OnDestroy {
   private referenceUploadInput?: ElementRef<HTMLInputElement>;
 
   readonly maxImages = 5;
+  readonly iconClose = X;
+  readonly iconSend = Send;
   prompt = '';
   private improvedPrompt: string | null = null;
   private improvedPromptSource = '';
@@ -39,6 +50,16 @@ export class ImageGenerator implements OnDestroy {
   errorMessage = '';
   successMessage = '';
   debugMessage = '';
+  isChatReportsModalOpen = false;
+  isCampaignModalOpen = false;
+  campaignName = '';
+  campaignMessage = '';
+  campaignDelay = 10;
+  campaignLeadsFile: File | null = null;
+  campaignError = '';
+  campaignSuccess = '';
+  campaignResult: CampaignDispatchResponse | null = null;
+  isSendingCampaign = false;
   isImageSourceModalOpen = false;
   isSystemLibraryOpen = false;
   isLoadingFolders = false;
@@ -54,6 +75,7 @@ export class ImageGenerator implements OnDestroy {
 
   constructor(
     private readonly prototypeService: Prototype,
+    private readonly campaignDispatchService: CampaignDispatch,
     private readonly folderMockupService: FolderMockup,
     private readonly cdr: ChangeDetectorRef
   ) {}
@@ -64,6 +86,106 @@ export class ImageGenerator implements OnDestroy {
 
   get isSecretModeActive(): boolean {
     return !!this.prompt.trim() && this.improvedPromptSource === this.prompt.trim();
+  }
+
+  openChatReportsModal(): void {
+    this.isChatReportsModalOpen = true;
+  }
+
+  closeChatReportsModal(): void {
+    this.isChatReportsModalOpen = false;
+  }
+
+  selectCampaignDispatch(): void {
+    this.closeChatReportsModal();
+    this.openCampaignModal();
+  }
+
+  openCampaignModal(): void {
+    this.isCampaignModalOpen = true;
+    this.campaignError = '';
+    this.campaignSuccess = '';
+  }
+
+  closeCampaignModal(): void {
+    if (this.isSendingCampaign) {
+      return;
+    }
+
+    this.isCampaignModalOpen = false;
+  }
+
+  onCampaignFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0] ?? null;
+
+    this.campaignLeadsFile = file;
+    this.campaignError = '';
+    this.campaignSuccess = '';
+    this.campaignResult = null;
+  }
+
+  submitCampaign(): void {
+    if (this.isSendingCampaign) {
+      return;
+    }
+
+    const campaignName = this.campaignName.trim();
+    const campaignMessage = this.campaignMessage.trim();
+    const delay = Number(this.campaignDelay) || 10;
+
+    if (!campaignName) {
+      this.campaignError = 'Informe o nome da campanha.';
+      return;
+    }
+
+    if (!campaignMessage) {
+      this.campaignError = 'Informe a mensagem da campanha.';
+      return;
+    }
+
+    if (!this.campaignLeadsFile) {
+      this.campaignError = 'Selecione o arquivo CSV de leads.';
+      return;
+    }
+
+    if (!this.campaignLeadsFile.name.toLowerCase().endsWith('.csv')) {
+      this.campaignError = 'O arquivo de leads precisa ser CSV.';
+      return;
+    }
+
+    if (delay < 1 || delay > 300) {
+      this.campaignError = 'O intervalo precisa estar entre 1 e 300 segundos.';
+      return;
+    }
+
+    this.isSendingCampaign = true;
+    this.campaignError = '';
+    this.campaignSuccess = '';
+    this.campaignResult = null;
+
+    this.campaignDispatchService
+      .dispatch(campaignName, campaignMessage, delay, this.campaignLeadsFile)
+      .pipe(
+        finalize(() => {
+          this.isSendingCampaign = false;
+          this.cdr.detectChanges();
+        })
+      )
+      .subscribe({
+        next: (result) => {
+          this.campaignResult = result;
+          this.campaignSuccess = `Campanha enviada para processamento com ${result.validLeads} lead${result.validLeads === 1 ? '' : 's'} valido${result.validLeads === 1 ? '' : 's'}.`;
+          this.cdr.detectChanges();
+        },
+        error: (error) => {
+          this.campaignError = this.resolveGeneratorErrorMessage(
+            error,
+            'Nao foi possivel enviar a campanha agora.'
+          );
+          this.cdr.detectChanges();
+        },
+      });
   }
 
   onFileSelected(event: Event): void {
