@@ -23,17 +23,16 @@
         Envie uma imagem de referência, descreva o que deseja gerar e organize
         seu fluxo em uma interface mais limpa e objetiva.
       </p>
-      <a
+      <button
         class="hero__whatsapp-card"
-        href="https://web.whatsapp.com/"
-        target="_blank"
-        rel="noopener noreferrer"
-        aria-label="Abrir WhatsApp Web em nova guia"
-        title="Abrir WhatsApp Web"
+        type="button"
+        (click)="openChatReportsModal()"
+        aria-label="Abrir opcoes de Chat e Relatorios"
+        title="Abrir Chat & Relatorios"
       >
         <img src="/assets/logowpp.png" alt="WhatsApp" />
         <span>CHAT & RELATÓRIOS</span>
-      </a>
+      </button>
     </div>
   </header>
 
@@ -222,6 +221,168 @@
     </aside>
   </section>
 </section>
+
+<div
+  class="chat-reports-modal-backdrop"
+  *ngIf="isChatReportsModalOpen"
+  (click)="closeChatReportsModal()"
+>
+  <div
+    class="chat-reports-modal"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="chat-reports-title"
+    (click)="$event.stopPropagation()"
+  >
+    <button
+      class="chat-reports-modal__close"
+      type="button"
+      (click)="closeChatReportsModal()"
+      aria-label="Fechar opcoes de Chat e Relatorios"
+      title="Fechar"
+    >
+      <lucide-icon [img]="iconClose" [size]="18" color="currentColor" aria-hidden="true" />
+    </button>
+
+    <span class="section-tag">Chat & Relatorios</span>
+    <h3 id="chat-reports-title">Escolha uma opção</h3>
+
+    <div class="chat-reports-options">
+      <button
+        class="chat-reports-option"
+        type="button"
+        (click)="selectCampaignDispatch()"
+      >
+        <span class="chat-reports-option__mark chat-reports-option__mark--dispatch">
+          <lucide-icon [img]="iconSend" [size]="28" color="currentColor" aria-hidden="true" />
+        </span>
+        <strong>Disparo</strong>
+      </button>
+
+      <a
+        class="chat-reports-option"
+        href="https://web.whatsapp.com/"
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label="Abrir WhatsApp Web em nova guia"
+      >
+        <span class="chat-reports-option__mark chat-reports-option__mark--whatsapp">
+          <img src="/assets/logowpp.png" alt="" />
+        </span>
+        <strong>WhatsApp</strong>
+      </a>
+    </div>
+  </div>
+</div>
+
+<div
+  class="campaign-modal-backdrop"
+  *ngIf="isCampaignModalOpen"
+  (click)="closeCampaignModal()"
+>
+  <form
+    class="campaign-modal"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="campaign-modal-title"
+    (click)="$event.stopPropagation()"
+    (ngSubmit)="submitCampaign()"
+  >
+    <button
+      class="campaign-modal__close"
+      type="button"
+      (click)="closeCampaignModal()"
+      [disabled]="isSendingCampaign"
+      aria-label="Fechar criacao de campanha"
+      title="Fechar"
+    >
+      <lucide-icon [img]="iconClose" [size]="18" color="currentColor" aria-hidden="true" />
+    </button>
+
+    <span class="section-tag">Disparo</span>
+    <h3 id="campaign-modal-title">Criar campanha de disparo</h3>
+
+    <div class="campaign-form-grid">
+      <label class="campaign-field">
+        <span>Nome da campanha</span>
+        <input
+          type="text"
+          name="campaignName"
+          [(ngModel)]="campaignName"
+          placeholder="Campanha Junho"
+          autocomplete="off"
+        />
+      </label>
+
+      <label class="campaign-field">
+        <span>Intervalo entre mensagens</span>
+        <div class="campaign-delay-field">
+          <input
+            type="number"
+            name="campaignDelay"
+            [(ngModel)]="campaignDelay"
+            min="1"
+            max="300"
+            step="1"
+          />
+          <small>segundos</small>
+        </div>
+      </label>
+    </div>
+
+    <label class="campaign-field">
+      <span>Mensagem</span>
+      <textarea
+        name="campaignMessage"
+        [(ngModel)]="campaignMessage"
+        rows="6"
+        [placeholder]="'Ola {{nome}}, tudo bem?'"
+      ></textarea>
+    </label>
+
+    <label class="campaign-file-field">
+      <input
+        type="file"
+        accept=".csv,text/csv"
+        (change)="onCampaignFileSelected($event)"
+      />
+      <span class="campaign-file-field__icon">
+        <lucide-icon [img]="iconSend" [size]="22" color="currentColor" aria-hidden="true" />
+      </span>
+      <strong>{{ campaignLeadsFile?.name || 'Selecionar CSV de leads' }}</strong>
+    </label>
+
+    <div class="campaign-feedback">
+      <p class="feedback feedback--error" *ngIf="campaignError">
+        {{ campaignError }}
+      </p>
+      <p class="feedback feedback--success" *ngIf="campaignSuccess">
+        {{ campaignSuccess }}
+      </p>
+      <p class="feedback feedback--debug" *ngIf="campaignResult">
+        {{ campaignResult.totalRows }} linhas lidas • {{ campaignResult.invalidLeads }} invalido(s) • {{ campaignResult.duplicateLeads }} duplicado(s)
+      </p>
+    </div>
+
+    <div class="campaign-modal__actions">
+      <button
+        class="button button--ghost"
+        type="button"
+        (click)="closeCampaignModal()"
+        [disabled]="isSendingCampaign"
+      >
+        Cancelar
+      </button>
+      <button
+        class="button button--primary campaign-submit-button"
+        type="submit"
+        [disabled]="isSendingCampaign"
+      >
+        {{ isSendingCampaign ? 'Enviando...' : 'Criar campanha' }}
+      </button>
+    </div>
+  </form>
+</div>
 
 <div
   class="source-modal-backdrop"

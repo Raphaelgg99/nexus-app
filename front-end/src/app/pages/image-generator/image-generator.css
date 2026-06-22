@@ -146,6 +146,10 @@
   flex-direction: column;
   align-items: center;
   gap: 10px;
+  border: 0;
+  background: transparent;
+  font: inherit;
+  cursor: pointer;
   text-decoration: none;
   text-align: center;
   transition: transform 0.2s ease, filter 0.2s ease;
@@ -451,6 +455,32 @@
 .button--ghost {
   background: rgba(15, 74, 138, 0.08);
   color: var(--primary);
+}
+
+.campaign-modal__actions .button--primary:disabled {
+  opacity: 1;
+  background: #c7d9ee;
+  color: #082f63;
+  box-shadow: inset 0 0 0 1px rgba(8, 47, 99, 0.08);
+  cursor: not-allowed;
+}
+
+.campaign-modal__actions .campaign-submit-button {
+  opacity: 1 !important;
+  background: linear-gradient(135deg, #082f63, #0f4a8a) !important;
+  color: #ffffff !important;
+  box-shadow: 0 14px 26px rgba(8, 47, 99, 0.24) !important;
+}
+
+.campaign-modal__actions .campaign-submit-button:disabled {
+  background: #b9cce4 !important;
+  color: #082f63 !important;
+  box-shadow: inset 0 0 0 1px rgba(8, 47, 99, 0.16) !important;
+}
+
+.campaign-modal__actions .button--ghost:disabled {
+  opacity: 1;
+  color: #082f63;
 }
 
 .workspace-sidebar {

@@ -59,6 +59,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/v1/users/**", "/api/v1/users").hasRole("ADMIN")
                         .requestMatchers("/api/v1/folders/**", "/api/v1/folders").authenticated()
                         .requestMatchers("/api/v1/chatbot/**", "/api/v1/chatbot").authenticated()
+                        .requestMatchers("/api/v1/campaigns/**", "/api/v1/campaigns").authenticated()
                         .requestMatchers("/api/melhorar-prompt").authenticated()
                         .requestMatchers("/api/prototype/**", "/api/prototype").authenticated()
                         .anyRequest().authenticated()

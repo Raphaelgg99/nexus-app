@@ -153,6 +153,7 @@ jobs:
           INITIAL_ADMIN_PASSWORD: ${{ secrets.INITIAL_ADMIN_PASSWORD }}
           OPENAI_ACCESS_TOKEN: ${{ secrets.OPENAI_ACCESS_TOKEN }}
           NANOBANANA_ACCESS_TOKEN: ${{ secrets.NANOBANANA_ACCESS_TOKEN }}
+          N8N_CAMPAIGN_WEBHOOK_URL: ${{ secrets.N8N_CAMPAIGN_WEBHOOK_URL }}
         run: |
           mkdir -p deploy-files
           cp docker-compose.production.yml deploy-files/docker-compose.yml
@@ -181,6 +182,7 @@ jobs:
             echo "INITIAL_ADMIN_PASSWORD=${INITIAL_ADMIN_PASSWORD}"
             echo "OPENAI_ACCESS_TOKEN=${OPENAI_ACCESS_TOKEN}"
             echo "NANOBANANA_ACCESS_TOKEN=${NANOBANANA_ACCESS_TOKEN}"
+            echo "N8N_CAMPAIGN_WEBHOOK_URL=${N8N_CAMPAIGN_WEBHOOK_URL}"
           } > deploy-files/.env.production
 
       - name: Prepare SSH key
